@@ -15,7 +15,7 @@ import java.io.IOException;
 public class OneButtonGame extends PApplet {
 
 // PGraphics pg;
-PShader testShader;
+PShader pixelPerfectShader;
 GameObject obj;
 Number number;
 
@@ -26,15 +26,16 @@ public void setup(){
   frameRate(1000);
   
 
-  Graphics.addShader("test.frag", loadShader("test.frag"));
-  obj = new GameObject(ConstructedImages.test, "test.frag");
-  number = new Number(0, 40, "test.frag");
-  obj.position = new PVector(3, 10);
-  number.transform(10, 20, 0.5f);
-  number.setBaseColor(Colors.highlight);
-  number.number = 1;
+  Graphics.addShader("pixelPerfect.frag", loadShader("pixelPerfect.frag"));
+  obj = new GameObject(ConstructedImages.test, "pixelPerfect.frag");
+  number = new Number(10, "pixelPerfect.frag");
+  obj.scale = 1F;
+  obj.position(3, 10);
+  number.scale(1);
+  number.baseColor(Colors.highlight);
+  number.number = 0;
   Time.add("Input", 15);
-  Time.add("Second", 1000);
+  Time.add("QuartSecond", 1000 / 4);
 }
 
 public void draw(){
@@ -46,14 +47,15 @@ public void draw(){
   text(Time.getTimer("Input"), 10, 50);
   text(keyCode, 10, 65);
 
-  if (Time.getTimer("Second") <= 0)
-    number.number++;
-  if (keyPressed && Time.getTimer("Input") <= 0) {
-    obj.position.y += key == 's' ? 1 : key == 'w' ? -1 : 0;
-    obj.position.x += key == 'd' ? 1 : key == 'a' ? -1 : 0;
+  if (Time.getTimer("QuartSecond") <= 0)
+    number.number = millis();
+  if (mousePressed && Time.getTimer("Input") <= 0) {
+    Graphics.scale += 0.01F;
   }
-  number.setPosition((int)(mouseX / Graphics.scale), (int)(mouseY / Graphics.scale));
+  obj.position = new PVector(200 * cos(millis() / 500F) + width / 2F, 200 * sin(millis() / 500F) + height / 2F);
+
   obj.draw();
+  number.position(width - 15 - number.width(), 20);
   number.draw();
 
   Time.update(millis());
@@ -170,6 +172,12 @@ static class ConstructedImages {
      {0, 3, 3, 3},
      {0, 0, 3, 3},
      {0, 0, 3, 3}};
+    static final int[][] neg =
+    {{0, 0, 0, 0},
+     {0, 0, 0, 0},
+     {0, 3, 3, 3},
+     {0, 3, 3, 3},
+     {0, 0, 0, 0}};
   }
 
   static final int[][] test =
@@ -179,13 +187,14 @@ static class ConstructedImages {
    {0, 4, 0, 4, 0}};
 }
 class Digit {
+  static final int NEGATIVE = 10;
   int digit;
   String shaderName;
   PShader shader;
 
   private PVector pixelOffset;
 
-  public PImage[] sprites = new PImage[10];
+  public PImage[] sprites = new PImage[11];
   public int baseColor = Colors.base;
   public PVector position = new PVector();
   public float scale = 1;
@@ -194,16 +203,17 @@ class Digit {
     for (int i = 0; i < 10; i++) {
       sprites[i] = makePImage(digitImage(i));
     }
+    sprites[NEGATIVE] = makePImage(digitImage(NEGATIVE));
     shader = Graphics.getShader(shaderN);
     shaderName = shaderN;
-    digit = no < 0 ? 0 : no >= 10 ? 9 : no;
+    digit = no < 0 ? 0 : no > 10 ? 9 : no;
 
     pixelOffset = new PVector(0.5F / sprites[digit].width, 0.5F / sprites[digit].height);
   }
 
   public void draw() {
-    if (digit >= 10 || digit < 0) return;
-    shader(Graphics.getShader("test.frag"));
+    if (digit > 10 || digit < 0) return;
+    shader(Graphics.getShader(shaderName));
     shader.set("sprite", sprites[digit]);
     shader.set("spriteSize", (float)sprites[digit].width, (float)sprites[digit].height);
     shader.set("pixelOffset", pixelOffset.x, pixelOffset.y);
@@ -211,8 +221,8 @@ class Digit {
     shader.set("baseColor", getRed(baseColor, true), getGreen(baseColor, true), getBlue(baseColor, true), 1 - getAlpha(baseColor));
     shader.set("time", millis() * 0.001F);
 
-    image(sprites[digit], position.x * Graphics.scale, position.y * Graphics.scale,
-                  sprites[digit].width * Graphics.scale * scale, sprites[digit].height * Graphics.scale * scale);
+    image(sprites[digit], (int)(position.x / Graphics.scale) * Graphics.scale, (int)(position.y / Graphics.scale) * Graphics.scale,
+          sprites[digit].width * Graphics.scale * scale, sprites[digit].height * Graphics.scale * scale);
   }
 
   private int[][] digitImage(int no) {
@@ -227,12 +237,14 @@ class Digit {
       case 7: return ConstructedImages.Numbers.seven;
       case 8: return ConstructedImages.Numbers.eigth;
       case 9: return ConstructedImages.Numbers.nine;
-      default: return ConstructedImages.Numbers.nine;
+      case NEGATIVE: return ConstructedImages.Numbers.neg;
+      default: return ConstructedImages.Numbers.cero;
     }
   }
 }
 
 public int getDigitAtInt(int num, int index) {
+  num = (int)abs(num);
   if (index > 0) {
     return (num % (int)pow(10, index + 1)) / (int)pow(10, index);
   } else {
@@ -241,6 +253,7 @@ public int getDigitAtInt(int num, int index) {
 }
 
 public int getDigitAtLong(long num, long index) {
+  num = num <= 0L ? 0L - num : num;
   if (index > 0) {
     return (int)((num % pow(10, index + 1)) / pow(10, index));
   } else {
@@ -253,20 +266,35 @@ public class GameObject {
 
   private PVector pixelOffset;
 
+  public float scale = 1;
   public PImage sprite;
   public int baseColor = Colors.base;
-  public PVector position = new PVector();
+  private PVector position = new PVector();
 
   GameObject(int[][] cImage, String shaderN) {
     sprite = makePImage(cImage);
     shader = Graphics.getShader(shaderN);
     shaderName = shaderN;
 
-    pixelOffset = new PVector(0.5F / sprite.width, 0.5F / sprite.height);
+    pixelOffset = new PVector(0.5F / sprite.width * 1, 0.5F / sprite.height * 1);
+  }
+
+  public void position(float x, float y) {
+    position.x = x;
+    position.y = y;
+  }
+
+  public PVector position() {
+    return position;
+  }
+
+  public void translate(float x, float y) {
+    position.x += x;
+    position.y += y;
   }
 
   public void draw() {
-    shader(Graphics.getShader("test.frag"));
+    shader(Graphics.getShader(shaderName));
     shader.set("sprite", sprite);
     shader.set("spriteSize", (float)sprite.width, (float)sprite.height);
     shader.set("pixelOffset", pixelOffset.x, pixelOffset.y);
@@ -274,8 +302,8 @@ public class GameObject {
     shader.set("baseColor", getRed(baseColor, true), getGreen(baseColor, true), getBlue(baseColor, true), 1 - getAlpha(baseColor));
     shader.set("time", millis() * 0.001F);
 
-    image(sprite, position.x * Graphics.scale, position.y * Graphics.scale,
-                  sprite.width * Graphics.scale, sprite.height * Graphics.scale);
+    image(sprite, (int)(position.x / Graphics.scale) * Graphics.scale, (int)(position.y / Graphics.scale) * Graphics.scale,
+          sprite.width * Graphics.scale * scale, sprite.height * Graphics.scale * scale);
   }
 }
 public static class Graphics {
@@ -319,68 +347,76 @@ class Number {
   private int dsize;
   private Digit[] digits;
 
-  Number(int number, int size, String shaderN) {
+  Number(int size, String shaderN) {
     dsize = abs(size) <= 19 ? abs(size) : 19;
     digits = new Digit[dsize];
     for (int i = 0; i < dsize; i++) {
       digits[i] = new Digit(0, shaderN);
-      digits[i].position.x = position.x + (dsize - i) * (digits[i].sprites[0].width + 1) * scale;
+      digits[i].position.x = position.x + (dsize - i - 1) * (digits[i].sprites[0].width + 1 * (1 / scale)) * Graphics.scale * scale;
       digits[i].position.y = position.y;
     }
   }
 
-  public void setPosition(int x, int y) {
+  public float width() {
+    return dsize * (digits[0].sprites[0].width + 1 * (1 / scale)) * Graphics.scale * scale;
+  }
+
+  public void position(float x, float y) {
     position.x = x;
     position.y = y;
     for (int i = 0; i < dsize; i++) {
-      digits[i].position.x = position.x + (dsize - i - 1) * (digits[i].sprites[0].width + 1) * scale;
+      digits[i].position.x = position.x + (dsize - i - 1) * (digits[i].sprites[0].width + 1 * (1 / scale)) * Graphics.scale * scale;
       digits[i].position.y = position.y;
     }
   }
 
-  public PVector getPosition() {
+  public PVector position() {
     return position;
   }
 
-  public void setScale(float s) {
+  public void scale(float s) {
     scale = s;
     for (int i = 0; i < dsize; i++) {
       digits[i].scale = scale;
-      digits[i].position.x = position.x + (dsize - i - 1) * (digits[i].sprites[0].width + 1) * scale;
+      digits[i].position.x = position.x + (dsize - i - 1) * (digits[i].sprites[0].width + 1 * (1 / scale)) * Graphics.scale * scale;
       digits[i].position.y = position.y;
     }
   }
 
-  public float getScale() {
+  public float scale() {
     return scale;
   }
 
-  public void transform(int x, int y, float s) {
+  public void transform(float x, float y, float s) {
     position.x = x;
     position.y = y;
     scale = s;
     for (int i = 0; i < dsize; i++) {
       digits[i].scale = scale;
-      digits[i].position.x = position.x + (dsize - i - 1) * (digits[i].sprites[0].width + 0.5f) * scale;
+      digits[i].position.x = position.x + (dsize - i - 1) * (digits[i].sprites[0].width + 1 * (1 / scale)) * Graphics.scale * scale;
       digits[i].position.y = position.y;
     }
   }
 
-  public void setBaseColor(int c) {
+  public void baseColor(int c) {
     baseColor = c;
     for (int i = 0; i < dsize; i++) {
       digits[i].baseColor = baseColor;
     }
   }
 
-  public int getColor() {
+  public int baseColor() {
     return baseColor;
   }
 
   public void draw() {
+    if (number < 0) {
+      digits[dsize - 1].digit = Digit.NEGATIVE;
+    }
+
     for (int i = 0; i < dsize; i++) {
-      digits[i].draw();
       digits[i].digit = getDigitAtLong(number, i);
+      digits[i].draw();
     }
   }
 }

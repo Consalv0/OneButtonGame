@@ -60,6 +60,12 @@ static class ConstructedImages {
      {0, 3, 3, 3},
      {0, 0, 3, 3},
      {0, 0, 3, 3}};
+    static final int[][] neg =
+    {{0, 0, 0, 0},
+     {0, 0, 0, 0},
+     {0, 3, 3, 3},
+     {0, 3, 3, 3},
+     {0, 0, 0, 0}};
   }
 
   static final int[][] test =

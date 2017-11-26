@@ -1,5 +1,5 @@
 // PGraphics pg;
-PShader testShader;
+PShader pixelPerfectShader;
 GameObject obj;
 Number number;
 
@@ -10,18 +10,19 @@ public void setup(){
   frameRate(1000);
   noSmooth();
 
-  Graphics.addShader("test.frag", loadShader("test.frag"));
-  obj = new GameObject(ConstructedImages.test, "test.frag");
-  number = new Number(0, 40, "test.frag");
-  obj.position = new PVector(3, 10);
-  number.transform(10, 20, 0.5);
-  number.setBaseColor(Colors.highlight);
-  number.number = 1;
+  Graphics.addShader("pixelPerfect.frag", loadShader("pixelPerfect.frag"));
+  obj = new GameObject(ConstructedImages.test, "pixelPerfect.frag");
+  number = new Number(10, "pixelPerfect.frag");
+  obj.scale = 1F;
+  obj.position(3, 10);
+  number.scale(1);
+  number.baseColor(Colors.highlight);
+  number.number = 0;
   Time.add("Input", 15);
-  Time.add("Second", 1000);
+  Time.add("QuartSecond", 1000 / 4);
 }
 
-public void draw(){
+public void draw() {
   resetShader();
   background(Colors.dark);
   fill(Colors.base);
@@ -30,14 +31,15 @@ public void draw(){
   text(Time.getTimer("Input"), 10, 50);
   text(keyCode, 10, 65);
 
-  if (Time.getTimer("Second") <= 0)
-    number.number++;
-  if (keyPressed && Time.getTimer("Input") <= 0) {
-    obj.position.y += key == 's' ? 1 : key == 'w' ? -1 : 0;
-    obj.position.x += key == 'd' ? 1 : key == 'a' ? -1 : 0;
+  if (Time.getTimer("QuartSecond") <= 0)
+    number.number = millis();
+  if (mousePressed && Time.getTimer("Input") <= 0) {
+
   }
-  number.setPosition((int)(mouseX / Graphics.scale), (int)(mouseY / Graphics.scale));
+  obj.position = new PVector(200 * cos(millis() / 500F) + width / 2F, 200 * sin(millis() / 500F) + height / 2F);
+
   obj.draw();
+  number.position(width - 15 - number.width(), 20);
   number.draw();
 
   Time.update(millis());
