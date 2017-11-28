@@ -9,15 +9,19 @@ uniform float barrelD;
 varying vec4 vertColor;
 varying vec4 vertTexCoord;
 
-const float MAXDISORT = 0.05;
-const int NUMITER = 3;
+const float MAXDISTOR = 0.1;
+const int NUMITER = 1;
 const float RECINUMITERF = 1.0 / float(NUMITER);
 const float PI = 3.1415926535;
 
+// vec2 barrelDistort(vec2 coord, float amt) {
+// 	vec2 cc = coord - 0.5;
+// 	float dist = dot(cc, cc);
+// 	return coord + cc * dist * amt;
+// }
 vec2 barrelDistort(vec2 coord, float amt) {
-	vec2 cc = coord - 0.5;
-	float dist = dot(cc, cc);
-	return coord + cc * dist * amt;
+	float dist = dot(coord, coord);
+	return coord + coord * dist * amt;
 }
 
 float sat(float t) {
@@ -43,26 +47,27 @@ vec4 spectrum_offset(float t) {
 }
 
 vec2 distort(vec2 p) {
-    float theta  = atan(p.y, p.x);
-    float radius = length(p);
-    radius = pow(radius, barrelD);
-    p.x = radius * cos(theta);
-    p.y = radius * sin(theta);
-    return 0.5 * (p + 1.0);
+  float theta  = atan(p.y, p.x);
+  float radius = sqrt(pow(p.x, 2.0) + pow(p.y, 2.0));
+  radius = pow(radius, barrelD);
+  p.x = radius * cos(theta);
+  p.y = radius * sin(theta);
+  return 0.5 * (p + 1.0);
 }
 
 void main() {
 
-  vec2 xy = 2.0 * vertTexCoord.xy - 1.0;
+  vec2 xy = 0.8 * vertTexCoord.xy - 0.4;
 
   vec4 sumcol = vec4(0.0);
   vec4 sumw = vec4(0.0);
+	vec2 bD = distort(xy);
 
   for (int i = 0; i < NUMITER; ++i) {
   	float t = float(i) * RECINUMITERF;
   	vec4 w = spectrum_offset( t );
   	sumw += w;
-  	sumcol += w * texture(texture, barrelDistort(distort(xy), MAXDISORT*t ) );
+  	sumcol += w * texture(texture, barrelDistort(xy, MAXDISTOR * t) + bD);
   }
 
   gl_FragColor = sumcol / sumw;

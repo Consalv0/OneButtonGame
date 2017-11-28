@@ -61,7 +61,7 @@ public void draw() {
   text(frameRate, 8, 35);
   text(Time.getTimer("Input"), 10, 50);
   text(keyCode, 10, 65);
-  for (int i = 0; i < 20; i++) {
+  for (int i = 1; i < 20; i++) {
     line(0, i * height / 20, width, i * height / 20);
     line(i * width / 20, 0, i * width / 20, height);
   }
@@ -79,9 +79,9 @@ public void draw() {
   resetShader();
   fill(Colors.dark);
   line(0, height - 1, width, height - 1);
-  line(width, height - 1, 0, height - 1);
+  line(0, 0, 0, height - 1);
   line(width - 1, 0, width - 1, height);
-  line(width - 1, height, width - 1, 0);
+  line(0, 0, width - 1, 0);
 
   // I call the passes, all is declared in the class Graphics
   Graphics.drawPostFX(g, fx, tvPass);
