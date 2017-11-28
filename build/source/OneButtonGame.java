@@ -26,7 +26,6 @@ PostFX fx;
 GameObject obj;
 Number number;
 TVPass tvPass;
-int lwidth, lheight;
 
 public void setup(){
   // fullScreen(P2D);
@@ -62,21 +61,35 @@ public void draw() {
   text(frameRate, 8, 35);
   text(Time.getTimer("Input"), 10, 50);
   text(keyCode, 10, 65);
+  for (int i = 0; i < 20; i++) {
+    line(0, i * height / 20, width, i * height / 20);
+    line(i * width / 20, 0, i * width / 20, height);
+  }
 
   if (Time.getTimer("QuartSecond") <= 0)
     number.number = millis();
-  if (mousePressed && Time.getTimer("Input") <= 0) {
-
+  if (Time.getTimer("Input") <= 0) {
+    obj.position = new PVector(200 * cos(millis() / 500F) + mouseX, 200 * sin(millis() / 500F) + mouseY);
   }
-  obj.position = new PVector(200 * cos(millis() / 500F) + width / 2F, 200 * sin(millis() / 500F) + height / 2F);
 
   obj.draw();
   number.position(width - 15 - number.width(), 20);
   number.draw();
 
-  drawPostFX();
+  resetShader();
+  fill(Colors.dark);
+  line(0, height - 1, width, height - 1);
+  line(width, height - 1, 0, height - 1);
+  line(width - 1, 0, width - 1, height);
+  line(width - 1, height, width - 1, 0);
 
-  Time.update(millis());
+  // I call the passes, all is declared in the class Graphics
+  Graphics.drawPostFX(g, fx, tvPass);
+
+  // Don`t remove this updates the time maybe pause?
+  if (!mousePressed) {
+    Time.update(millis());
+  }
 }
 public static class Colors {
   static final int minIndexValue = 0;
@@ -328,6 +341,7 @@ public static class Graphics {
   private static ArrayList<PShader> shaders = new ArrayList<PShader>();
   private static IntDict shaderDict = new IntDict();
 
+  private static int lwidth, lheight;
   public static float scale = pow(2, 2.6f);
 
   public static void addShader(String name, PShader shader) {
@@ -343,21 +357,24 @@ public static class Graphics {
     }
     return null;
   }
-}
 
-public void drawPostFX() {
-  resetShader();
-  if (Time.getTimer("ScreenSizeUpdate") <= 0) {
-    if (lwidth != width || lheight != height) {
-      lwidth = width;
-      lheight = height;
-      fx.setResolution(this);
+  public static void drawPostFX(PGraphics g, PostFX fx, Pass pass) {
+    g.resetShader();
+
+    if (Time.getTimer("ScreenSizeUpdate") <= 0) {
+      if (lwidth != g.width || lheight != g.height) {
+        lwidth = g.width;
+        lheight = g.height;
+        fx.setResolution(g);
+      }
     }
+
+    fx.render()
+      .custom(pass)
+      .blur(10, 1.3f, true)
+      .compose();
+    // image(g, 0, 0);
   }
-  fx.render()
-    .custom(tvPass)
-    .compose();
-  // image(g, 0, 0);
 }
 
 public PImage makePImage(int[][] ipixels) {
