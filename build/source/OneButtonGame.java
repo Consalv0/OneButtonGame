@@ -14,8 +14,6 @@ import java.io.IOException;
 
 public class OneButtonGame extends PApplet {
 
-// PGraphics pg;
-PShader pixelPerfectShader;
 GameObject obj;
 Number number;
 
@@ -27,6 +25,8 @@ public void setup(){
   
 
   Graphics.addShader("pixelPerfect.frag", loadShader("pixelPerfect.frag"));
+  Graphics.addShader("fishEye.frag", loadShader("fishEye.frag"));
+
   obj = new GameObject(ConstructedImages.test, "pixelPerfect.frag");
   number = new Number(10, "pixelPerfect.frag");
   obj.scale = 1F;
@@ -38,7 +38,7 @@ public void setup(){
   Time.add("QuartSecond", 1000 / 4);
 }
 
-public void draw(){
+public void draw() {
   resetShader();
   background(Colors.dark);
   fill(Colors.base);
@@ -50,13 +50,17 @@ public void draw(){
   if (Time.getTimer("QuartSecond") <= 0)
     number.number = millis();
   if (mousePressed && Time.getTimer("Input") <= 0) {
-    Graphics.scale += 0.01F;
+
   }
   obj.position = new PVector(200 * cos(millis() / 500F) + width / 2F, 200 * sin(millis() / 500F) + height / 2F);
 
   obj.draw();
   number.position(width - 15 - number.width(), 20);
   number.draw();
+
+  shader(Graphics.getShader("fishEye.frag"));
+  Graphics.getShader("fishEye.frag").set("barrelD", mouseX * 0.01F);
+  image(g.textureImage, 0, 0);
 
   Time.update(millis());
 }

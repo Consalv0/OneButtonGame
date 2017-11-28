@@ -1,5 +1,3 @@
-// PGraphics pg;
-PShader pixelPerfectShader;
 GameObject obj;
 Number number;
 
@@ -11,6 +9,8 @@ public void setup(){
   noSmooth();
 
   Graphics.addShader("pixelPerfect.frag", loadShader("pixelPerfect.frag"));
+  Graphics.addShader("fishEye.frag", loadShader("fishEye.frag"));
+
   obj = new GameObject(ConstructedImages.test, "pixelPerfect.frag");
   number = new Number(10, "pixelPerfect.frag");
   obj.scale = 1F;
@@ -41,6 +41,10 @@ public void draw() {
   obj.draw();
   number.position(width - 15 - number.width(), 20);
   number.draw();
+
+  shader(Graphics.getShader("fishEye.frag"));
+  Graphics.getShader("fishEye.frag").set("barrelD", mouseX * 0.01F);
+  image(g.textureImage, 0, 0);
 
   Time.update(millis());
 }
