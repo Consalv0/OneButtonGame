@@ -3,6 +3,10 @@ import processing.data.*;
 import processing.event.*; 
 import processing.opengl.*; 
 
+import ch.bildspur.postfx.builder.*; 
+import ch.bildspur.postfx.pass.*; 
+import ch.bildspur.postfx.*; 
+
 import java.util.HashMap; 
 import java.util.ArrayList; 
 import java.io.File; 
@@ -14,8 +18,15 @@ import java.io.IOException;
 
 public class OneButtonGame extends PApplet {
 
+
+
+
+
+PostFX fx;
 GameObject obj;
 Number number;
+TVPass tvPass;
+int lwidth, lheight;
 
 public void setup(){
   // fullScreen(P2D);
@@ -24,8 +35,11 @@ public void setup(){
   frameRate(1000);
   
 
+  fx = new PostFX(this);
+
   Graphics.addShader("pixelPerfect.frag", loadShader("pixelPerfect.frag"));
   Graphics.addShader("fishEye.frag", loadShader("fishEye.frag"));
+  tvPass = new TVPass();
 
   obj = new GameObject(ConstructedImages.test, "pixelPerfect.frag");
   number = new Number(10, "pixelPerfect.frag");
@@ -34,6 +48,8 @@ public void setup(){
   number.scale(1);
   number.baseColor(Colors.highlight);
   number.number = 0;
+
+  Time.add("ScreenSizeUpdate", 200);
   Time.add("Input", 15);
   Time.add("QuartSecond", 1000 / 4);
 }
@@ -58,9 +74,7 @@ public void draw() {
   number.position(width - 15 - number.width(), 20);
   number.draw();
 
-  shader(Graphics.getShader("fishEye.frag"));
-  Graphics.getShader("fishEye.frag").set("barrelD", mouseX * 0.01F);
-  image(g.textureImage, 0, 0);
+  drawPostFX();
 
   Time.update(millis());
 }
@@ -331,6 +345,21 @@ public static class Graphics {
   }
 }
 
+public void drawPostFX() {
+  resetShader();
+  if (Time.getTimer("ScreenSizeUpdate") <= 0) {
+    if (lwidth != width || lheight != height) {
+      lwidth = width;
+      lheight = height;
+      fx.setResolution(this);
+    }
+  }
+  fx.render()
+    .custom(tvPass)
+    .compose();
+  // image(g, 0, 0);
+}
+
 public PImage makePImage(int[][] ipixels) {
   PImage image = createImage(ipixels[0].length, ipixels.length, ARGB);
   image.loadPixels();
@@ -422,6 +451,29 @@ class Number {
       digits[i].digit = getDigitAtLong(number, i);
       digits[i].draw();
     }
+  }
+}
+class TVPass implements Pass {
+  PShader shader;
+
+  public TVPass() {
+    shader = Graphics.getShader("fishEye.frag");
+  }
+
+  @Override
+    public void prepare(Supervisor supervisor) {
+      shader.set("barrelD", 1.3F);
+  }
+
+  @Override
+    public void apply(Supervisor supervisor) {
+    PGraphics pass = supervisor.getNextPass();
+    supervisor.clearPass(pass);
+
+    pass.beginDraw();
+    pass.shader(shader);
+    pass.image(supervisor.getCurrentPass(), 0, 0);
+    pass.endDraw();
   }
 }
 public static class Time {

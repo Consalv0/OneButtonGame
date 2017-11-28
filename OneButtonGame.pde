@@ -1,5 +1,12 @@
+import ch.bildspur.postfx.builder.*;
+import ch.bildspur.postfx.pass.*;
+import ch.bildspur.postfx.*;
+
+PostFX fx;
 GameObject obj;
 Number number;
+TVPass tvPass;
+int lwidth, lheight;
 
 public void setup(){
   // fullScreen(P2D);
@@ -8,8 +15,11 @@ public void setup(){
   frameRate(1000);
   noSmooth();
 
+  fx = new PostFX(this);
+
   Graphics.addShader("pixelPerfect.frag", loadShader("pixelPerfect.frag"));
   Graphics.addShader("fishEye.frag", loadShader("fishEye.frag"));
+  tvPass = new TVPass();
 
   obj = new GameObject(ConstructedImages.test, "pixelPerfect.frag");
   number = new Number(10, "pixelPerfect.frag");
@@ -18,6 +28,8 @@ public void setup(){
   number.scale(1);
   number.baseColor(Colors.highlight);
   number.number = 0;
+
+  Time.add("ScreenSizeUpdate", 200);
   Time.add("Input", 15);
   Time.add("QuartSecond", 1000 / 4);
 }
@@ -42,9 +54,7 @@ public void draw() {
   number.position(width - 15 - number.width(), 20);
   number.draw();
 
-  shader(Graphics.getShader("fishEye.frag"));
-  Graphics.getShader("fishEye.frag").set("barrelD", mouseX * 0.01F);
-  image(g.textureImage, 0, 0);
+  drawPostFX();
 
   Time.update(millis());
 }

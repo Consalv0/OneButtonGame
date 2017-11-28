@@ -24,10 +24,9 @@ void main() {
   vec2 xy = 2.0 * vertTexCoord.xy - 1.0;
 
   // float d = length(xy);
-  // if (d < 1.0) {
+  // if (d < barrelD - 0.1) {
     gl_FragColor = texture(texture, Distort(xy));
   // } else {
-  //   uv = vertTexCoord.xy;
-  //   gl_FragColor = vec4(0, 0, 0, 0.5);
+  //   gl_FragColor = texture(texture, vertTexCoord.xy) - vec4(0.3);
   // }
 }

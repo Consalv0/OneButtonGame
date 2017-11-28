@@ -18,3 +18,18 @@ public static class Graphics {
     return null;
   }
 }
+
+void drawPostFX() {
+  resetShader();
+  if (Time.getTimer("ScreenSizeUpdate") <= 0) {
+    if (lwidth != width || lheight != height) {
+      lwidth = width;
+      lheight = height;
+      fx.setResolution(this);
+    }
+  }
+  fx.render()
+    .custom(tvPass)
+    .compose();
+  // image(g, 0, 0);
+}
