@@ -28,8 +28,8 @@ Number number;
 TVPass tvPass;
 
 public void setup(){
+  // fullScreen(P2D);
   
-  // size(800, 600, P2D);
   surface.setResizable(true);
   frameRate(1000);
   
@@ -57,15 +57,15 @@ public void draw() {
   resetShader();
   background(Colors.dark);
   fill(Colors.base);
-  stroke(blendColor(Colors.base, Colors.shadow, MULTIPLY));
   text(width + "x" + height, 10, 20);
   text(frameRate, 8, 35);
   text(Time.getTimer("Input"), 10, 50);
   text(keyCode, 10, 65);
-  for (int i = 1; i < 20; i++) {
-    line(0, i * height / 20, width, i * height / 20);
-    line(i * width / 20, 0, i * width / 20, height);
-  }
+  // stroke(blendColor(Colors.base, Colors.shadow, MULTIPLY));
+  // for (int i = 1; i < 20; i++) {
+  //   line(0, i * height / 20, width, i * height / 20);
+  //   line(i * width / 20, 0, i * width / 20, height);
+  // }
 
   if (!mousePressed) {
     tvPass.aberration = 0.08F;
@@ -537,7 +537,7 @@ public static class Time {
     }
   }
 }
-  public void settings() {  fullScreen(P2D);  noSmooth(); }
+  public void settings() {  size(800, 600, P2D);  noSmooth(); }
   static public void main(String[] passedArgs) {
     String[] appletArgs = new String[] { "OneButtonGame" };
     if (passedArgs != null) {

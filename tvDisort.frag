@@ -61,6 +61,7 @@ void main() {
 
   vec4 sumcol = vec4(0.0);
   vec4 sumw = vec4(0.0);
+  
 	vec2 bD = distort(xy);
 
   for (int i = 0; i < NUMITER; ++i) {
