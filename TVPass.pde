@@ -4,7 +4,7 @@ class TVPass implements Pass {
   public float aberration = 0.08F;
 
   public TVPass() {
-    shader = Graphics.getShader("fishEye.frag");
+    shader = Graphics.getShader("tvDisort.frag");
   }
 
   @Override

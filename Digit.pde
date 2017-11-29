@@ -50,7 +50,7 @@ class Digit {
       case 8: return ConstructedImages.Numbers.eigth;
       case 9: return ConstructedImages.Numbers.nine;
       case NEGATIVE: return ConstructedImages.Numbers.neg;
-      default: return ConstructedImages.Numbers.cero;
+      default: return ConstructedImages.Numbers.neg;
     }
   }
 }

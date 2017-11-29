@@ -17,7 +17,7 @@ public void setup(){
   fx = new PostFX(this);
 
   Graphics.addShader("pixelPerfect.frag", loadShader("pixelPerfect.frag"));
-  Graphics.addShader("fishEye.frag", loadShader("fishEye.frag"));
+  Graphics.addShader("tvDisort.frag", loadShader("tvDisort.frag"));
   tvPass = new TVPass();
 
   obj = new GameObject(ConstructedImages.test, "pixelPerfect.frag");
@@ -46,11 +46,11 @@ public void draw() {
     line(0, i * height / 20, width, i * height / 20);
     line(i * width / 20, 0, i * width / 20, height);
   }
-  
+
   if (!mousePressed) {
     tvPass.aberration = 0.08F;
   } else {
-    tvPass.aberration = 0.5F;
+    tvPass.aberration = 0.4F;
   }
 
   if (Time.getTimer("QuartSecond") <= 0)

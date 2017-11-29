@@ -10,7 +10,7 @@ uniform float aberration;
 varying vec4 vertColor;
 varying vec4 vertTexCoord;
 
-const int NUMITER = 3;
+const int NUMITER = 9;
 const float RECINUMITERF = 1.0 / float(NUMITER);
 const float PI = 3.1415926535;
 
