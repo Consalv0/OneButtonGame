@@ -9,8 +9,8 @@ uniform float barrelD;
 varying vec4 vertColor;
 varying vec4 vertTexCoord;
 
-const float MAXDISTOR = 0.1;
-const int NUMITER = 1;
+const float MAXDISTOR = 0.08;
+const int NUMITER = 3;
 const float RECINUMITERF = 1.0 / float(NUMITER);
 const float PI = 3.1415926535;
 

@@ -8,8 +8,8 @@ Number number;
 TVPass tvPass;
 
 public void setup(){
-  // fullScreen(P2D);
-  size(800, 600, P2D);
+  fullScreen(P2D);
+  // size(800, 600, P2D);
   surface.setResizable(true);
   frameRate(1000);
   noSmooth();
@@ -37,6 +37,7 @@ public void draw() {
   resetShader();
   background(Colors.dark);
   fill(Colors.base);
+  stroke(blendColor(Colors.base, Colors.shadow, MULTIPLY));
   text(width + "x" + height, 10, 20);
   text(frameRate, 8, 35);
   text(Time.getTimer("Input"), 10, 50);
@@ -55,13 +56,6 @@ public void draw() {
   obj.draw();
   number.position(width - 15 - number.width(), 20);
   number.draw();
-
-  resetShader();
-  fill(Colors.dark);
-  line(0, height - 1, width, height - 1);
-  line(0, 0, 0, height - 1);
-  line(width - 1, 0, width - 1, height);
-  line(0, 0, width - 1, 0);
 
   // I call the passes, all is declared in the class Graphics
   Graphics.drawPostFX(g, fx, tvPass);

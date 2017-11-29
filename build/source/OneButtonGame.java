@@ -28,8 +28,8 @@ Number number;
 TVPass tvPass;
 
 public void setup(){
-  // fullScreen(P2D);
   
+  // size(800, 600, P2D);
   surface.setResizable(true);
   frameRate(1000);
   
@@ -57,6 +57,7 @@ public void draw() {
   resetShader();
   background(Colors.dark);
   fill(Colors.base);
+  stroke(blendColor(Colors.base, Colors.shadow, MULTIPLY));
   text(width + "x" + height, 10, 20);
   text(frameRate, 8, 35);
   text(Time.getTimer("Input"), 10, 50);
@@ -75,13 +76,6 @@ public void draw() {
   obj.draw();
   number.position(width - 15 - number.width(), 20);
   number.draw();
-
-  resetShader();
-  fill(Colors.dark);
-  line(0, height - 1, width, height - 1);
-  line(0, 0, 0, height - 1);
-  line(width - 1, 0, width - 1, height);
-  line(0, 0, width - 1, 0);
 
   // I call the passes, all is declared in the class Graphics
   Graphics.drawPostFX(g, fx, tvPass);
@@ -358,6 +352,14 @@ public static class Graphics {
     return null;
   }
 
+  public static void drawFrame(PGraphics g, int c) {
+    g.stroke(c);
+    g.line(0, g.height - 1, g.width, g.height - 1);
+    g.line(0, 0, 0, g.height - 1);
+    g.line(g.width - 1, 0, g.width - 1, g.height);
+    g.line(0, 0, g.width - 1, 0);
+  }
+
   public static void drawPostFX(PGraphics g, PostFX fx, Pass pass) {
     g.resetShader();
 
@@ -369,11 +371,12 @@ public static class Graphics {
       }
     }
 
+    drawFrame(g, blendColor(0xFF444444, 0xFF555555, MULTIPLY)); // Draw the TV Frame
+
     fx.render()
       .custom(pass)
-      .blur(10, 1.3f, true)
+      // .blur(10, 1.3, true)
       .compose();
-    // image(g, 0, 0);
   }
 }
 
@@ -527,7 +530,7 @@ public static class Time {
     }
   }
 }
-  public void settings() {  size(800, 600, P2D);  noSmooth(); }
+  public void settings() {  fullScreen(P2D);  noSmooth(); }
   static public void main(String[] passedArgs) {
     String[] appletArgs = new String[] { "OneButtonGame" };
     if (passedArgs != null) {

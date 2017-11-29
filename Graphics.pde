@@ -19,6 +19,14 @@ public static class Graphics {
     return null;
   }
 
+  static void drawFrame(PGraphics g, int c) {
+    g.stroke(c);
+    g.line(0, g.height - 1, g.width, g.height - 1);
+    g.line(0, 0, 0, g.height - 1);
+    g.line(g.width - 1, 0, g.width - 1, g.height);
+    g.line(0, 0, g.width - 1, 0);
+  }
+
   static void drawPostFX(PGraphics g, PostFX fx, Pass pass) {
     g.resetShader();
 
@@ -30,10 +38,11 @@ public static class Graphics {
       }
     }
 
+    drawFrame(g, blendColor(0xFF444444, 0xFF555555, MULTIPLY)); // Draw the TV Frame
+
     fx.render()
       .custom(pass)
-      .blur(10, 1.3, true)
+      // .blur(10, 1.3, true)
       .compose();
-    // image(g, 0, 0);
   }
 }
