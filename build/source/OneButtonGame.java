@@ -43,6 +43,8 @@ public void setup(){
   obj = new GameObject(ConstructedImages.test, "pixelPerfect.frag");
   number = new Number(10, "pixelPerfect.frag");
   obj.scale = 1F;
+  obj.speed = 15;
+  obj.movement(1, 2);
   obj.position(3, 10);
   number.scale(1);
   number.baseColor(Colors.highlight);
@@ -68,7 +70,8 @@ public void draw() {
   // }
 
   if (!mousePressed) {
-    tvPass.aberration = 0.08F;
+    if (Time.getTimer("Input") <= 0)
+    tvPass.aberration = tvPass.aberration - 0.05F <= 0.08F ? 0.08F : tvPass.aberration - 0.05F;
   } else {
     tvPass.aberration = 0.4F;
   }
@@ -76,7 +79,10 @@ public void draw() {
   if (Time.getTimer("QuartSecond") <= 0)
     number.number = millis();
   if (Time.getTimer("Input") <= 0) {
-    obj.position = new PVector(200 * cos(millis() / 500F) + mouseX, 200 * sin(millis() / 500F) + mouseY);
+    obj.move();
+    if (obj.position.x < 0 || obj.position.x + obj.width() > width) { obj.movement(-obj.movement().x, obj.movement().y); tvPass.aberration += 0.4F; }
+    if (obj.position.y < 0 || obj.position.y + obj.height() > height) { obj.movement(obj.movement().x, -obj.movement().y); tvPass.aberration += 0.4F; }
+    // obj.position = new PVector(200 * cos(millis() / 500F) + mouseX, 200 * sin(millis() / 500F) + mouseY);
   }
 
   obj.draw();
@@ -214,6 +220,12 @@ static class ConstructedImages {
    {4, 1, 1, 1, 4},
    {4, 1, 4, 1, 4},
    {0, 4, 0, 4, 0}};
+
+  static final int[][] player =
+  {{0, 4, 0, 4, 0},
+   {4, 1, 1, 1, 4},
+   {4, 1, 4, 1, 4},
+   {0, 4, 0, 4, 0}};
 }
 class Digit {
   static final int NEGATIVE = 10;
@@ -295,10 +307,14 @@ public class GameObject {
 
   private PVector pixelOffset;
 
-  public float scale = 1;
   public PImage sprite;
+  private float width;
   public int baseColor = Colors.base;
+
+  public float scale = 1;
+  public float speed = 0;
   private PVector position = new PVector();
+  private PVector movement = new PVector();
 
   GameObject(int[][] cImage, String shaderN) {
     sprite = makePImage(cImage);
@@ -320,6 +336,32 @@ public class GameObject {
   public void translate(float x, float y) {
     position.x += x;
     position.y += y;
+  }
+
+  public void movement(float x, float y) {
+    movement.x = x;
+    movement.y = y;
+    movement.normalize();
+  }
+  public PVector movement(PVector v) {
+    v.normalize();
+    movement = v;
+    return movement;
+  }
+
+  public PVector movement() {
+    return movement;
+  }
+
+  public float width() {
+    return sprite.width * scale * Graphics.scale;
+  }
+  public float height() {
+    return sprite.height * scale * Graphics.scale;
+  }
+
+  public void move() {
+    translate(movement.x * speed, movement.y * speed);
   }
 
   public void draw() {

@@ -4,10 +4,14 @@ public class GameObject {
 
   private PVector pixelOffset;
 
-  public float scale = 1;
   public PImage sprite;
+  private float width;
   public int baseColor = Colors.base;
+
+  public float scale = 1;
+  public float speed = 0;
   private PVector position = new PVector();
+  private PVector movement = new PVector();
 
   GameObject(int[][] cImage, String shaderN) {
     sprite = makePImage(cImage);
@@ -29,6 +33,32 @@ public class GameObject {
   public void translate(float x, float y) {
     position.x += x;
     position.y += y;
+  }
+
+  public void movement(float x, float y) {
+    movement.x = x;
+    movement.y = y;
+    movement.normalize();
+  }
+  public PVector movement(PVector v) {
+    v.normalize();
+    movement = v;
+    return movement;
+  }
+
+  public PVector movement() {
+    return movement;
+  }
+
+  public float width() {
+    return sprite.width * scale * Graphics.scale;
+  }
+  public float height() {
+    return sprite.height * scale * Graphics.scale;
+  }
+
+  public void move() {
+    translate(movement.x * speed, movement.y * speed);
   }
 
   public void draw() {

@@ -23,6 +23,8 @@ public void setup(){
   obj = new GameObject(ConstructedImages.test, "pixelPerfect.frag");
   number = new Number(10, "pixelPerfect.frag");
   obj.scale = 1F;
+  obj.speed = 15;
+  obj.movement(1, 2);
   obj.position(3, 10);
   number.scale(1);
   number.baseColor(Colors.highlight);
@@ -48,7 +50,8 @@ public void draw() {
   // }
 
   if (!mousePressed) {
-    tvPass.aberration = 0.08F;
+    if (Time.getTimer("Input") <= 0)
+    tvPass.aberration = tvPass.aberration - 0.05F <= 0.08F ? 0.08F : tvPass.aberration - 0.05F;
   } else {
     tvPass.aberration = 0.4F;
   }
@@ -56,7 +59,10 @@ public void draw() {
   if (Time.getTimer("QuartSecond") <= 0)
     number.number = millis();
   if (Time.getTimer("Input") <= 0) {
-    obj.position = new PVector(200 * cos(millis() / 500F) + mouseX, 200 * sin(millis() / 500F) + mouseY);
+    obj.move();
+    if (obj.position.x < 0 || obj.position.x + obj.width() > width) { obj.movement(-obj.movement().x, obj.movement().y); tvPass.aberration += 0.4F; }
+    if (obj.position.y < 0 || obj.position.y + obj.height() > height) { obj.movement(obj.movement().x, -obj.movement().y); tvPass.aberration += 0.4F; }
+    // obj.position = new PVector(200 * cos(millis() / 500F) + mouseX, 200 * sin(millis() / 500F) + mouseY);
   }
 
   obj.draw();
