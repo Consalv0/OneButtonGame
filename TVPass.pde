@@ -1,5 +1,7 @@
 class TVPass implements Pass {
   PShader shader;
+  public float barrel = 1.3F;
+  public float aberration = 0.08F;
 
   public TVPass() {
     shader = Graphics.getShader("fishEye.frag");
@@ -7,7 +9,8 @@ class TVPass implements Pass {
 
   @Override
     public void prepare(Supervisor supervisor) {
-      shader.set("barrelD", 1.3F);
+      shader.set("barrelD", barrel);
+      shader.set("aberration", aberration);
   }
 
   @Override

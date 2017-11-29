@@ -66,6 +66,12 @@ public void draw() {
     line(0, i * height / 20, width, i * height / 20);
     line(i * width / 20, 0, i * width / 20, height);
   }
+  
+  if (!mousePressed) {
+    tvPass.aberration = 0.08F;
+  } else {
+    tvPass.aberration = 0.5F;
+  }
 
   if (Time.getTimer("QuartSecond") <= 0)
     number.number = millis();
@@ -81,9 +87,7 @@ public void draw() {
   Graphics.drawPostFX(g, fx, tvPass);
 
   // Don`t remove this updates the time maybe pause?
-  if (!mousePressed) {
-    Time.update(millis());
-  }
+  Time.update(millis());
 }
 public static class Colors {
   static final int minIndexValue = 0;
@@ -475,6 +479,8 @@ class Number {
 }
 class TVPass implements Pass {
   PShader shader;
+  public static float barrel = 1.3F;
+  public static float aberration = 0.08F;
 
   public TVPass() {
     shader = Graphics.getShader("fishEye.frag");
@@ -482,7 +488,8 @@ class TVPass implements Pass {
 
   @Override
     public void prepare(Supervisor supervisor) {
-      shader.set("barrelD", 1.3F);
+      shader.set("barrelD", barrel);
+      shader.set("aberration", aberration);
   }
 
   @Override

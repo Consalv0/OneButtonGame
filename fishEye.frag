@@ -5,11 +5,11 @@ precision mediump int;
 
 uniform sampler2D texture;
 uniform float barrelD;
+uniform float aberration;
 
 varying vec4 vertColor;
 varying vec4 vertTexCoord;
 
-const float MAXDISTOR = 0.08;
 const int NUMITER = 3;
 const float RECINUMITERF = 1.0 / float(NUMITER);
 const float PI = 3.1415926535;
@@ -67,7 +67,7 @@ void main() {
   	float t = float(i) * RECINUMITERF;
   	vec4 w = spectrum_offset( t );
   	sumw += w;
-  	sumcol += w * texture(texture, barrelDistort(xy, MAXDISTOR * t) + bD);
+  	sumcol += w * texture(texture, barrelDistort(xy, aberration * t) + bD);
   }
 
   gl_FragColor = sumcol / sumw;
