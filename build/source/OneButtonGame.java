@@ -89,6 +89,7 @@ public void draw() {
   if ((obj.collisions & CHORIZONTAL) > 0) obj.movement(obj.movement().x, -obj.movement().y);
 
   if (Time.getTimer("Second") <= 0) {
+    tPoint.timer((tPoint.time + Time.delta()) % 1);
     // obj.position = new PVector(200 * cos(millis() / 500F) + mouseX, 200 * sin(millis() / 500F) + mouseY);
   }
 

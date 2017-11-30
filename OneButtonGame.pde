@@ -24,7 +24,7 @@ public void setup(){
   Graphics.addShader("tvDisort.frag", loadShader("tvDisort.frag"));
   tvPass = new TVPass();
 
-  tPoint = new TimePoint(ConstructedImages.downarrow, "pixelPerfect.frag", 0.5F);
+  tPoint = new TimePoint(ConstructedImages.downarrow, "pixelPerfect.frag", 0F);
   obj = new GameObject(ConstructedImages.downarrow, "pixelPerfect.frag");
   number = new Number(10, "pixelPerfect.frag");
   obj.scale = 1F;
@@ -67,6 +67,7 @@ public void draw() {
   if ((obj.collisions & CHORIZONTAL) > 0) obj.movement(obj.movement().x, -obj.movement().y);
 
   if (Time.getTimer("Second") <= 0) {
+    tPoint.timer((tPoint.time + Time.delta()) % 1);
     // obj.position = new PVector(200 * cos(millis() / 500F) + mouseX, 200 * sin(millis() / 500F) + mouseY);
   }
 

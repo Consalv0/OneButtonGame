@@ -13,7 +13,7 @@ public class TimePoint extends GameObject {
 
   public void timer(float t) {
     time = t;
-    position.x = time * width;
+    position.x = time * width - width() / 2;
     position.y = height - height() - TIMEWIDTH - 1;
   }
 }
