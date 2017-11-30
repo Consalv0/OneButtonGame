@@ -1,6 +1,8 @@
 import ch.bildspur.postfx.builder.*;
 import ch.bildspur.postfx.pass.*;
 import ch.bildspur.postfx.*;
+import processing.sound.*;
+import java.util.Arrays;
 
 PostFX fx;
 GameObject obj;
@@ -15,6 +17,7 @@ public void setup(){
   noSmooth();
 
   fx = new PostFX(this);
+  Sounds.initialize(this);
 
   Graphics.addShader("pixelPerfect.frag", loadShader("pixelPerfect.frag"));
   Graphics.addShader("tvDisort.frag", loadShader("tvDisort.frag"));
@@ -23,7 +26,7 @@ public void setup(){
   obj = new GameObject(ConstructedImages.test, "pixelPerfect.frag");
   number = new Number(10, "pixelPerfect.frag");
   obj.scale = 1F;
-  obj.speed = 15;
+  obj.speed = 30;
   obj.movement(1, 2);
   obj.position(3, 10);
   number.scale(1);
@@ -32,7 +35,7 @@ public void setup(){
 
   Time.add("ScreenSizeUpdate", 200);
   Time.add("Input", 15);
-  Time.add("QuartSecond", 1000 / 4);
+  Time.add("Second", 1000);
 }
 
 public void draw() {
@@ -41,8 +44,8 @@ public void draw() {
   fill(Colors.base);
   text(width + "x" + height, 10, 20);
   text(frameRate, 8, 35);
-  text(Time.getTimer("Input"), 10, 50);
-  text(keyCode, 10, 65);
+  text(Time.delta(), 10, 50);
+  text(obj.position.x, 10, 65);
   // stroke(blendColor(Colors.base, Colors.shadow, MULTIPLY));
   // for (int i = 1; i < 20; i++) {
   //   line(0, i * height / 20, width, i * height / 20);
@@ -50,18 +53,18 @@ public void draw() {
   // }
 
   if (!mousePressed) {
-    if (Time.getTimer("Input") <= 0)
-    tvPass.aberration = tvPass.aberration - 0.05F <= 0.08F ? 0.08F : tvPass.aberration - 0.05F;
+    tvPass.aberration = tvPass.aberration - 0.1F * Time.delta() <= 0.08F ? 0.08F : tvPass.aberration - 0.1F * Time.delta();
   } else {
-    tvPass.aberration = 0.4F;
+    tvPass.aberration = 0F;
   }
 
-  if (Time.getTimer("QuartSecond") <= 0)
-    number.number = millis();
-  if (Time.getTimer("Input") <= 0) {
-    obj.move();
-    if (obj.position.x < 0 || obj.position.x + obj.width() > width) { obj.movement(-obj.movement().x, obj.movement().y); tvPass.aberration += 0.4F; }
-    if (obj.position.y < 0 || obj.position.y + obj.height() > height) { obj.movement(obj.movement().x, -obj.movement().y); tvPass.aberration += 0.4F; }
+  // if (Time.getTimer("Second") <= 0)
+  obj.move();
+  if (obj.collisions > 0) { Sounds.bounce.play(); tvPass.aberration += 0.4F; number.number = millis(); }
+  if ((obj.collisions & CVERTICAL) > 0) obj.movement(-obj.movement().x, obj.movement().y);
+  if ((obj.collisions & CHORIZONTAL) > 0) obj.movement(obj.movement().x, -obj.movement().y);
+
+  if (Time.getTimer("Second") <= 0) {
     // obj.position = new PVector(200 * cos(millis() / 500F) + mouseX, 200 * sin(millis() / 500F) + mouseY);
   }
 

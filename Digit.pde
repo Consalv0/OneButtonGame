@@ -31,7 +31,7 @@ class Digit {
     shader.set("pixelOffset", pixelOffset.x, pixelOffset.y);
 
     shader.set("baseColor", getRed(baseColor, true), getGreen(baseColor, true), getBlue(baseColor, true), 1 - getAlpha(baseColor));
-    shader.set("time", millis() * 0.001F);
+    // shader.set("time", millis() * 0.001F);
 
     image(sprites[digit], (int)(position.x / Graphics.scale) * Graphics.scale, (int)(position.y / Graphics.scale) * Graphics.scale,
           sprites[digit].width * Graphics.scale * scale, sprites[digit].height * Graphics.scale * scale);

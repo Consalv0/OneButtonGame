@@ -1,6 +1,6 @@
 class TVPass implements Pass {
   PShader shader;
-  public float barrel = 1.3F;
+  public float barrel = 1.4F;
   public float aberration = 0.08F;
 
   public TVPass() {

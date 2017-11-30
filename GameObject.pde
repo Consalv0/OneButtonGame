@@ -4,8 +4,9 @@ public class GameObject {
 
   private PVector pixelOffset;
 
+  int collisions = 0;
+
   public PImage sprite;
-  private float width;
   public int baseColor = Colors.base;
 
   public float scale = 1;
@@ -58,7 +59,25 @@ public class GameObject {
   }
 
   public void move() {
-    translate(movement.x * speed, movement.y * speed);
+    translate(movement.x * speed * Time.delta(), movement.y * speed * Time.delta());
+    // println(movement.x * speed * 1F / Time.getFPS());
+    checkCollisions();
+    clampPosition();
+  }
+
+  private void checkCollisions() {
+    collisions = 0;
+    if (position.x < 0)                 collisions |= CLEFT;
+    if (position.x + width() > width)   collisions |= CRIGHT;
+    if (position.y < 0)                 collisions |= CTOP;
+    if (position.y + height() > height) collisions |= CDOWN;
+  }
+
+  private void clampPosition() {
+    position.x = position.x + width() >= width ? position.x - Graphics.scale * scale :
+     position.x <= 0 ? position.x + Graphics.scale * scale : position.x;
+    position.y = position.y + height() >= height ? position.y - Graphics.scale * scale :
+     position.y <= 0 ? position.y + Graphics.scale * scale : position.y;
   }
 
   public void draw() {
@@ -68,7 +87,7 @@ public class GameObject {
     shader.set("pixelOffset", pixelOffset.x, pixelOffset.y);
 
     shader.set("baseColor", getRed(baseColor, true), getGreen(baseColor, true), getBlue(baseColor, true), 1 - getAlpha(baseColor));
-    shader.set("time", millis() * 0.001F);
+    // shader.set("time", millis() * 0.001F);
 
     image(sprite, (int)(position.x / Graphics.scale) * Graphics.scale, (int)(position.y / Graphics.scale) * Graphics.scale,
           sprite.width * Graphics.scale * scale, sprite.height * Graphics.scale * scale);

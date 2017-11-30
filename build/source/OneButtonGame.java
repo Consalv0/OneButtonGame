@@ -6,6 +6,8 @@ import processing.opengl.*;
 import ch.bildspur.postfx.builder.*; 
 import ch.bildspur.postfx.pass.*; 
 import ch.bildspur.postfx.*; 
+import processing.sound.*; 
+import java.util.Arrays; 
 
 import java.util.HashMap; 
 import java.util.ArrayList; 
@@ -17,6 +19,8 @@ import java.io.OutputStream;
 import java.io.IOException; 
 
 public class OneButtonGame extends PApplet {
+
+
 
 
 
@@ -35,6 +39,7 @@ public void setup(){
   
 
   fx = new PostFX(this);
+  Sounds.initialize(this);
 
   Graphics.addShader("pixelPerfect.frag", loadShader("pixelPerfect.frag"));
   Graphics.addShader("tvDisort.frag", loadShader("tvDisort.frag"));
@@ -42,8 +47,8 @@ public void setup(){
 
   obj = new GameObject(ConstructedImages.test, "pixelPerfect.frag");
   number = new Number(10, "pixelPerfect.frag");
-  obj.scale = 1F;
-  obj.speed = 15;
+  obj.scale = 0.2F;
+  obj.speed = 30;
   obj.movement(1, 2);
   obj.position(3, 10);
   number.scale(1);
@@ -52,7 +57,7 @@ public void setup(){
 
   Time.add("ScreenSizeUpdate", 200);
   Time.add("Input", 15);
-  Time.add("QuartSecond", 1000 / 4);
+  Time.add("Second", 1000);
 }
 
 public void draw() {
@@ -61,8 +66,8 @@ public void draw() {
   fill(Colors.base);
   text(width + "x" + height, 10, 20);
   text(frameRate, 8, 35);
-  text(Time.getTimer("Input"), 10, 50);
-  text(keyCode, 10, 65);
+  text(Time.delta(), 10, 50);
+  text(obj.position.x, 10, 65);
   // stroke(blendColor(Colors.base, Colors.shadow, MULTIPLY));
   // for (int i = 1; i < 20; i++) {
   //   line(0, i * height / 20, width, i * height / 20);
@@ -70,18 +75,18 @@ public void draw() {
   // }
 
   if (!mousePressed) {
-    if (Time.getTimer("Input") <= 0)
-    tvPass.aberration = tvPass.aberration - 0.05F <= 0.08F ? 0.08F : tvPass.aberration - 0.05F;
+    tvPass.aberration = tvPass.aberration - 0.1F * Time.delta() <= 0.08F ? 0.08F : tvPass.aberration - 0.1F * Time.delta();
   } else {
-    tvPass.aberration = 0.4F;
+    tvPass.aberration = 0F;
   }
 
-  if (Time.getTimer("QuartSecond") <= 0)
-    number.number = millis();
-  if (Time.getTimer("Input") <= 0) {
-    obj.move();
-    if (obj.position.x < 0 || obj.position.x + obj.width() > width) { obj.movement(-obj.movement().x, obj.movement().y); tvPass.aberration += 0.4F; }
-    if (obj.position.y < 0 || obj.position.y + obj.height() > height) { obj.movement(obj.movement().x, -obj.movement().y); tvPass.aberration += 0.4F; }
+  // if (Time.getTimer("Second") <= 0)
+  obj.move();
+  if (obj.collisions > 0) { Sounds.bounce.play(); tvPass.aberration += 0.4F; number.number = millis(); }
+  if ((obj.collisions & CVERTICAL) > 0) obj.movement(-obj.movement().x, obj.movement().y);
+  if ((obj.collisions & CHORIZONTAL) > 0) obj.movement(obj.movement().x, -obj.movement().y);
+
+  if (Time.getTimer("Second") <= 0) {
     // obj.position = new PVector(200 * cos(millis() / 500F) + mouseX, 200 * sin(millis() / 500F) + mouseY);
   }
 
@@ -95,6 +100,13 @@ public void draw() {
   // Don`t remove this updates the time maybe pause?
   Time.update(millis());
 }
+/* Collision Flags */
+final int CTOP = 2;
+final int CDOWN = 4;
+final int CLEFT = 8;
+final int CRIGHT = 16;
+final int CHORIZONTAL = CTOP | CDOWN;
+final int CVERTICAL = CLEFT | CRIGHT;
 public static class Colors {
   static final int minIndexValue = 0;
   static final int maxIndexValue = 9;
@@ -260,7 +272,7 @@ class Digit {
     shader.set("pixelOffset", pixelOffset.x, pixelOffset.y);
 
     shader.set("baseColor", getRed(baseColor, true), getGreen(baseColor, true), getBlue(baseColor, true), 1 - getAlpha(baseColor));
-    shader.set("time", millis() * 0.001F);
+    // shader.set("time", millis() * 0.001F);
 
     image(sprites[digit], (int)(position.x / Graphics.scale) * Graphics.scale, (int)(position.y / Graphics.scale) * Graphics.scale,
           sprites[digit].width * Graphics.scale * scale, sprites[digit].height * Graphics.scale * scale);
@@ -307,8 +319,9 @@ public class GameObject {
 
   private PVector pixelOffset;
 
+  int collisions = 0;
+
   public PImage sprite;
-  private float width;
   public int baseColor = Colors.base;
 
   public float scale = 1;
@@ -361,7 +374,25 @@ public class GameObject {
   }
 
   public void move() {
-    translate(movement.x * speed, movement.y * speed);
+    translate(movement.x * speed * Time.delta(), movement.y * speed * Time.delta());
+    // println(movement.x * speed * 1F / Time.getFPS());
+    checkCollisions();
+    clampPosition();
+  }
+
+  private void checkCollisions() {
+    collisions = 0;
+    if (position.x < 0)                 collisions |= CLEFT;
+    if (position.x + width() > width)   collisions |= CRIGHT;
+    if (position.y < 0)                 collisions |= CTOP;
+    if (position.y + height() > height) collisions |= CDOWN;
+  }
+
+  private void clampPosition() {
+    position.x = position.x + width() >= width ? position.x - Graphics.scale * scale :
+     position.x <= 0 ? position.x + Graphics.scale * scale : position.x;
+    position.y = position.y + height() >= height ? position.y - Graphics.scale * scale :
+     position.y <= 0 ? position.y + Graphics.scale * scale : position.y;
   }
 
   public void draw() {
@@ -371,7 +402,7 @@ public class GameObject {
     shader.set("pixelOffset", pixelOffset.x, pixelOffset.y);
 
     shader.set("baseColor", getRed(baseColor, true), getGreen(baseColor, true), getBlue(baseColor, true), 1 - getAlpha(baseColor));
-    shader.set("time", millis() * 0.001F);
+    // shader.set("time", millis() * 0.001F);
 
     image(sprite, (int)(position.x / Graphics.scale) * Graphics.scale, (int)(position.y / Graphics.scale) * Graphics.scale,
           sprite.width * Graphics.scale * scale, sprite.height * Graphics.scale * scale);
@@ -519,9 +550,16 @@ class Number {
     }
   }
 }
+public static class Sounds {
+  static SoundFile bounce;
+
+  public static void initialize(PApplet applet) {
+    bounce = new SoundFile(applet, "pi.wav");
+  }
+}
 class TVPass implements Pass {
   PShader shader;
-  public float barrel = 1.3F;
+  public float barrel = 1.4F;
   public float aberration = 0.08F;
 
   public TVPass() {
@@ -546,15 +584,23 @@ class TVPass implements Pass {
   }
 }
 public static class Time {
+  static int MAXSAMPLES = 100;
   static int mLastDraw = 0;
+  static float averageMS = 0;
+
+  private static boolean tickReady;
+  private static int tickindex = 0;
+  private static int ticksum = 0;
+  private static int[] ticklist = new int[MAXSAMPLES];
+
   private static IntDict timers = new IntDict();
   private static ArrayList<String> names = new ArrayList<String>();
   private static IntDict chronos = new IntDict();
 
   private static int temp;
 
-  public static int getMS(int millis) {
-    return millis - mLastDraw;
+  public static float delta() {
+    return averageMS / 60F;
   }
 
   public static void add(String name, int time) {
@@ -569,7 +615,22 @@ public static class Time {
     return mLastDraw - chronos.get(name);
   }
 
+  public static float calcAverageTick(int newtick) {
+    ticksum -= ticklist[tickindex];  /* subtract value falling off */
+    ticksum += newtick;              /* add new value */
+    ticklist[tickindex] = newtick;   /* save new value so it can be subtracted later */
+    if(++tickindex == MAXSAMPLES) {    /* inc buffer index */
+      tickindex = 0; tickReady = true;
+    }
+
+    if (!tickReady) return tickindex > 12 ? newtick : 0;
+
+    /* return average */
+    return((float)ticksum / MAXSAMPLES);
+  }
+
   public static void update(int millis) {
+    averageMS = calcAverageTick(millis - mLastDraw);
     mLastDraw = millis;
     for (int i = 0; i < names.size(); i++) {
       temp = mLastDraw - chronos.get(names.get(i));
