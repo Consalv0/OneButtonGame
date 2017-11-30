@@ -28,6 +28,7 @@ public class OneButtonGame extends PApplet {
 
 PostFX fx;
 GameObject obj;
+TimePoint tPoint;
 Number number;
 TVPass tvPass;
 
@@ -45,9 +46,10 @@ public void setup(){
   Graphics.addShader("tvDisort.frag", loadShader("tvDisort.frag"));
   tvPass = new TVPass();
 
-  obj = new GameObject(ConstructedImages.test, "pixelPerfect.frag");
+  tPoint = new TimePoint(ConstructedImages.downarrow, "pixelPerfect.frag", 0.5F);
+  obj = new GameObject(ConstructedImages.downarrow, "pixelPerfect.frag");
   number = new Number(10, "pixelPerfect.frag");
-  obj.scale = 0.2F;
+  obj.scale = 1F;
   obj.speed = 30;
   obj.movement(1, 2);
   obj.position(3, 10);
@@ -90,6 +92,7 @@ public void draw() {
     // obj.position = new PVector(200 * cos(millis() / 500F) + mouseX, 200 * sin(millis() / 500F) + mouseY);
   }
 
+  tPoint.draw();
   obj.draw();
   number.position(width - 15 - number.width(), 20);
   number.draw();
@@ -238,6 +241,12 @@ static class ConstructedImages {
    {4, 1, 1, 1, 4},
    {4, 1, 4, 1, 4},
    {0, 4, 0, 4, 0}};
+
+  static final int[][] downarrow =
+  {{5, 5, 5, 5, 5},
+   {5, 5, 5, 5, 5},
+   {0, 5, 5, 5, 0},
+   {0, 0, 5, 0, 0}};
 }
 class Digit {
   static final int NEGATIVE = 10;
@@ -314,10 +323,10 @@ public int getDigitAtLong(long num, long index) {
   }
 }
 public class GameObject {
-  private String shaderName;
+  protected String shaderName;
   PShader shader;
 
-  private PVector pixelOffset;
+  protected PVector pixelOffset;
 
   int collisions = 0;
 
@@ -326,9 +335,10 @@ public class GameObject {
 
   public float scale = 1;
   public float speed = 0;
-  private PVector position = new PVector();
-  private PVector movement = new PVector();
+  protected PVector position = new PVector();
+  protected PVector movement = new PVector();
 
+  GameObject() {}
   GameObject(int[][] cImage, String shaderN) {
     sprite = makePImage(cImage);
     shader = Graphics.getShader(shaderN);
@@ -638,6 +648,25 @@ public static class Time {
         chronos.set(names.get(i), mLastDraw);
       }
     }
+  }
+}
+float TIMEWIDTH = 5;
+public class TimePoint extends GameObject {
+  private float time;
+
+  TimePoint(int[][] cImage, String shaderN, float t) {
+    sprite = makePImage(cImage);
+    shader = Graphics.getShader(shaderN);
+    shaderName = shaderN;
+    timer(t);
+
+    pixelOffset = new PVector(0.5F / sprite.width * 1, 0.5F / sprite.height * 1);
+  }
+
+  public void timer(float t) {
+    time = t;
+    position.x = time * width;
+    position.y = height - height() - TIMEWIDTH - 1;
   }
 }
   public void settings() {  size(800, 600, P2D);  noSmooth(); }

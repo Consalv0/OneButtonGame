@@ -6,6 +6,7 @@ import java.util.Arrays;
 
 PostFX fx;
 GameObject obj;
+TimePoint tPoint;
 Number number;
 TVPass tvPass;
 
@@ -23,7 +24,8 @@ public void setup(){
   Graphics.addShader("tvDisort.frag", loadShader("tvDisort.frag"));
   tvPass = new TVPass();
 
-  obj = new GameObject(ConstructedImages.test, "pixelPerfect.frag");
+  tPoint = new TimePoint(ConstructedImages.downarrow, "pixelPerfect.frag", 0.5F);
+  obj = new GameObject(ConstructedImages.downarrow, "pixelPerfect.frag");
   number = new Number(10, "pixelPerfect.frag");
   obj.scale = 1F;
   obj.speed = 30;
@@ -68,6 +70,7 @@ public void draw() {
     // obj.position = new PVector(200 * cos(millis() / 500F) + mouseX, 200 * sin(millis() / 500F) + mouseY);
   }
 
+  tPoint.draw();
   obj.draw();
   number.position(width - 15 - number.width(), 20);
   number.draw();

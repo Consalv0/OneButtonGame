@@ -79,4 +79,10 @@ static class ConstructedImages {
    {4, 1, 1, 1, 4},
    {4, 1, 4, 1, 4},
    {0, 4, 0, 4, 0}};
+
+  static final int[][] downarrow =
+  {{5, 5, 5, 5, 5},
+   {5, 5, 5, 5, 5},
+   {0, 5, 5, 5, 0},
+   {0, 0, 5, 0, 0}};
 }

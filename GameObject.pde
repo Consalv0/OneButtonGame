@@ -1,8 +1,8 @@
 public class GameObject {
-  private String shaderName;
+  protected String shaderName;
   PShader shader;
 
-  private PVector pixelOffset;
+  protected PVector pixelOffset;
 
   int collisions = 0;
 
@@ -11,9 +11,10 @@ public class GameObject {
 
   public float scale = 1;
   public float speed = 0;
-  private PVector position = new PVector();
-  private PVector movement = new PVector();
+  protected PVector position = new PVector();
+  protected PVector movement = new PVector();
 
+  GameObject() {}
   GameObject(int[][] cImage, String shaderN) {
     sprite = makePImage(cImage);
     shader = Graphics.getShader(shaderN);
