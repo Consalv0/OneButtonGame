@@ -4,6 +4,7 @@ public static class Graphics {
 
   private static int lwidth, lheight;
   public static float scale = pow(2, 2.6);
+  public static boolean screenResized = true;
 
   public static void addShader(String name, PShader shader) {
     if (!shaderDict.hasKey(name)) {
@@ -27,17 +28,23 @@ public static class Graphics {
     g.line(0, 0, g.width - 1, 0);
   }
 
-  static void drawPostFX(PGraphics g, PostFX fx, Pass pass) {
-    g.resetShader();
-
+  static void watchScreen(PGraphics g) {
     if (Time.getTimer("ScreenSizeUpdate") <= 0) {
       if (lwidth != g.width || lheight != g.height) {
         lwidth = g.width;
         lheight = g.height;
-        fx.setResolution(g);
+        screenResized = true;
+        return;
       }
     }
+    screenResized = false;
+  }
 
+  static void drawPostFX(PGraphics g, PostFX fx, Pass pass) {
+    g.resetShader();
+    if (screenResized) {
+      fx.setResolution(g);
+    }
     drawFrame(g, blendColor(0xFF444444, 0xFF555555, MULTIPLY)); // Draw the TV Frame
 
     fx.render()
