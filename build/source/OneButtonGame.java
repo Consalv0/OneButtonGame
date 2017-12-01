@@ -25,7 +25,7 @@ public class OneButtonGame extends PApplet {
 
 
 PostFX fx;
-GameObject obj;
+GameObject obj, obj2;
 TimeKey[] keys = new TimeKey[KeyTime.KEYSIZE];
 TimeBar keyTimeBar;
 Number number;
@@ -54,11 +54,18 @@ public void setup(){
     keys[i].position.y = height - keys[i].height() - keyTimeBar.height();
   }
   obj = new GameObject(ConstructedImages.player, "pixelPerfect.frag");
-  number = new Number(10, "pixelPerfect.frag");
   obj.scale = 1F;
   obj.speed = 30;
   obj.movement(1, 2);
   obj.position(3, 10);
+  obj.collider(true, true);
+  obj2 = new GameObject(ConstructedImages.player, "pixelPerfect.frag");
+  obj2.scale = 1F;
+  obj2.speed = 30;
+  obj2.movement(3, 2);
+  obj2.position(100, 10);
+  obj2.collider(true, true);
+  number = new Number(10, "pixelPerfect.frag");
   number.scale(1);
   number.baseColor(Colors.highlight);
   number.number = 0;
@@ -94,12 +101,20 @@ public void draw() {
   tvPass.aberration = tvPass.aberration - 0.1F * Time.delta() <= 0.05F ? 0.05F : tvPass.aberration - 0.1F * Time.delta();
 
   // if (Time.getTimer("Second") <= 0)
-  obj.move();
-  if (obj.collisions > 0) { Sounds.bounce.play(); tvPass.aberration += 0.3F; number.number = millis(); }
-  if ((obj.collisions & CVERTICAL) > 0) obj.movement(-obj.movement().x, obj.movement().y);
-  if ((obj.collisions & CHORIZONTAL) > 0) obj.movement(obj.movement().x, -obj.movement().y);
+  checkCollisions();
 
-  if (mousePressed) {
+  if (obj.collisions > 0) { Sounds.bounce.play(); tvPass.aberration = 0.3F; number.number = millis(); }
+  if ((obj.collisions & CVERTICAL) > 0) { obj.movement(-obj.movement().x, obj.movement().y); }
+  if ((obj.collisions & CHORIZONTAL) > 0) { obj.movement(obj.movement().x, -obj.movement().y); }
+
+  if (obj2.collisions > 0) { Sounds.bounce.play(); tvPass.aberration = 0.3F; number.number = millis(); }
+  if ((obj2.collisions & CVERTICAL) > 0) { obj2.movement(-obj2.movement().x, obj2.movement().y); }
+  if ((obj2.collisions & CHORIZONTAL) > 0) { obj2.movement(obj2.movement().x, -obj2.movement().y); }
+
+  obj.move();
+  obj2.move();
+
+  if (mousePressed || keyPressed) {
     // tvPass.aberration = 0F;
     KeyTime.time = (KeyTime.time + 0.05F * Time.delta()) % 1;
   } else {
@@ -113,6 +128,7 @@ public void draw() {
   }
   keyTimeBar.draw();
   obj.draw();
+  obj2.draw();
   number.position(width - 15 - number.width(), 20);
   number.draw();
 
@@ -130,6 +146,76 @@ final int CLEFT = 8;
 final int CRIGHT = 16;
 final int CHORIZONTAL = CTOP | CDOWN;
 final int CVERTICAL = CLEFT | CRIGHT;
+
+ArrayList<GameObject> rectColliders = new ArrayList<GameObject>();
+
+public void checkCollisions() {
+  for (int i = 0; i < rectColliders.size(); i++) { rectColliders.get(i).collisions = 0; }
+
+  float w, h, ow, oh;
+  GameObject actual, other;
+  int collisions = 0;
+  for (int i = 0; i < rectColliders.size(); i++) {
+    actual = rectColliders.get(i);
+    w = actual.width();
+    h = actual.height();
+
+    collisions = 0;
+
+    if (actual.collideWithBorders) {
+      /* Border Collisions */
+      if (actual.position.x < 0)                collisions |= CLEFT;
+      else if (actual.position.x + w > width)   collisions |= CRIGHT;
+      else if (actual.position.y < 0)           collisions |= CTOP;
+      else if (actual.position.y + h > height)  collisions |= CDOWN;
+      if (collisions > 0) {
+        actual.collisions |= collisions;
+        actual.onBorderCollision(collisions);
+      }
+      /* Clamp Position (prevents multiple collisions) */
+      actual.position.x = actual.position.x + w >= width ? actual.position.x - Graphics.scale * actual.scale :
+        actual.position.x <= 0 ? actual.position.x + Graphics.scale * actual.scale : actual.position.x;
+      actual.position.y = actual.position.y + h >= height ? actual.position.y - Graphics.scale * actual.scale :
+        actual.position.y <= 0 ? actual.position.y + Graphics.scale * actual.scale : actual.position.y;
+    }
+
+    /* Other rects colliders collisions */
+    for (int j = i + 1; j < rectColliders.size(); j++) {
+      other = rectColliders.get(j);
+      ow = other.width();
+      oh = other.height();
+
+      if (actual.position.x < other.position.x + ow && actual.position.x > other.position.x - ow / 2) {
+        if (!(actual.position.y > other.position.y + oh || actual.position.y + h < other.position.y)) {
+          other.collisions |= CRIGHT;
+          actual.collisions |= CLEFT;
+          actual.onCollision(other); other.onCollision(actual);
+        }
+      }
+      if (actual.position.x + w > other.position.x && actual.position.x + w < other.position.x + ow / 2) {
+        if (!(actual.position.y > other.position.y + oh || actual.position.y + h < other.position.y)) {
+          other.collisions |= CLEFT;
+          actual.collisions |= CRIGHT;
+          actual.onCollision(other); other.onCollision(actual);
+        }
+      }
+      if (actual.position.y < other.position.y + oh && actual.position.y > other.position.y - oh / 2) {
+        if (!(actual.position.x > other.position.x + ow || actual.position.x + w < other.position.x)) {
+          other.collisions |= CTOP;
+          actual.collisions |= CDOWN;
+          actual.onCollision(other); other.onCollision(actual);
+        }
+      }
+      if (actual.position.y + h > other.position.y && actual.position.y + h < other.position.y + oh / 2) {
+        if (!(actual.position.x > other.position.x + ow || actual.position.x + w < other.position.x)) {
+          other.collisions |= CTOP;
+          actual.collisions |= CDOWN;
+          actual.onCollision(other); other.onCollision(actual);
+        }
+      }
+    }
+  }
+}
 public static class Colors {
   static final int minIndexValue = 0;
   static final int maxIndexValue = 9;
@@ -182,7 +268,7 @@ public PVector getRGB(int c, boolean alpha) {
 }
 static class ConstructedImages {
   static class Numbers {
-    static final int[][] cero =
+    static final int[][] zero =
     {{0, 3, 3, 0},
      {3, 0, 3, 3},
      {3, 0, 3, 3},
@@ -319,7 +405,7 @@ class Digit {
 
   private int[][] digitImage(int no) {
     switch (no) {
-      case 0: return ConstructedImages.Numbers.cero;
+      case 0: return ConstructedImages.Numbers.zero;
       case 1: return ConstructedImages.Numbers.one;
       case 2: return ConstructedImages.Numbers.two;
       case 3: return ConstructedImages.Numbers.three;
@@ -359,6 +445,8 @@ public class GameObject {
   protected PVector pixelOffset;
 
   int collisions = 0;
+  protected boolean isCollider = false;
+  boolean collideWithBorders = false;
 
   public PImage sprite;
   public int baseColor = Colors.base;
@@ -375,6 +463,20 @@ public class GameObject {
     shaderName = shaderN;
 
     pixelOffset = new PVector(0.5F / sprite.width * 1, 0.5F / sprite.height * 1);
+  }
+
+  public void collider(boolean option, boolean borders) {
+    collider(option);
+    collideWithBorders = borders;
+  }
+  public void collider(boolean option) {
+    if (option && !isCollider) {
+      rectColliders.add(this);
+      isCollider = true;
+    } else if (!option && isCollider) {
+      rectColliders.remove(this);
+      isCollider = false;
+    }
   }
 
   public void position(float x, float y) {
@@ -416,23 +518,14 @@ public class GameObject {
   public void move() {
     translate(movement.x * speed * Time.delta(), movement.y * speed * Time.delta());
     // println(movement.x * speed * 1F / Time.getFPS());
-    checkCollisions();
-    clampPosition();
   }
 
-  private void checkCollisions() {
-    collisions = 0;
-    if (position.x < 0)                 collisions |= CLEFT;
-    if (position.x + width() > width)   collisions |= CRIGHT;
-    if (position.y < 0)                 collisions |= CTOP;
-    if (position.y + height() > height) collisions |= CDOWN;
+  public void onBorderCollision(int sides) {
+
   }
 
-  private void clampPosition() {
-    position.x = position.x + width() >= width ? position.x - Graphics.scale * scale :
-     position.x <= 0 ? position.x + Graphics.scale * scale : position.x;
-    position.y = position.y + height() >= height ? position.y - Graphics.scale * scale :
-     position.y <= 0 ? position.y + Graphics.scale * scale : position.y;
+  public void onCollision(GameObject other) {
+
   }
 
   public void draw() {

@@ -5,6 +5,8 @@ public class GameObject {
   protected PVector pixelOffset;
 
   int collisions = 0;
+  protected boolean isCollider = false;
+  boolean collideWithBorders = false;
 
   public PImage sprite;
   public int baseColor = Colors.base;
@@ -21,6 +23,20 @@ public class GameObject {
     shaderName = shaderN;
 
     pixelOffset = new PVector(0.5F / sprite.width * 1, 0.5F / sprite.height * 1);
+  }
+
+  public void collider(boolean option, boolean borders) {
+    collider(option);
+    collideWithBorders = borders;
+  }
+  public void collider(boolean option) {
+    if (option && !isCollider) {
+      rectColliders.add(this);
+      isCollider = true;
+    } else if (!option && isCollider) {
+      rectColliders.remove(this);
+      isCollider = false;
+    }
   }
 
   public void position(float x, float y) {
@@ -62,23 +78,14 @@ public class GameObject {
   public void move() {
     translate(movement.x * speed * Time.delta(), movement.y * speed * Time.delta());
     // println(movement.x * speed * 1F / Time.getFPS());
-    checkCollisions();
-    clampPosition();
   }
 
-  private void checkCollisions() {
-    collisions = 0;
-    if (position.x < 0)                 collisions |= CLEFT;
-    if (position.x + width() > width)   collisions |= CRIGHT;
-    if (position.y < 0)                 collisions |= CTOP;
-    if (position.y + height() > height) collisions |= CDOWN;
+  public void onBorderCollision(int sides) {
+
   }
 
-  private void clampPosition() {
-    position.x = position.x + width() >= width ? position.x - Graphics.scale * scale :
-     position.x <= 0 ? position.x + Graphics.scale * scale : position.x;
-    position.y = position.y + height() >= height ? position.y - Graphics.scale * scale :
-     position.y <= 0 ? position.y + Graphics.scale * scale : position.y;
+  public void onCollision(GameObject other) {
+
   }
 
   public void draw() {

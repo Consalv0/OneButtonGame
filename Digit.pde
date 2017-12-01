@@ -39,7 +39,7 @@ class Digit {
 
   private int[][] digitImage(int no) {
     switch (no) {
-      case 0: return ConstructedImages.Numbers.cero;
+      case 0: return ConstructedImages.Numbers.zero;
       case 1: return ConstructedImages.Numbers.one;
       case 2: return ConstructedImages.Numbers.two;
       case 3: return ConstructedImages.Numbers.three;

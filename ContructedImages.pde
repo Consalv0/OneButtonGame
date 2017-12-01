@@ -1,6 +1,6 @@
 static class ConstructedImages {
   static class Numbers {
-    static final int[][] cero =
+    static final int[][] zero =
     {{0, 3, 3, 0},
      {3, 0, 3, 3},
      {3, 0, 3, 3},

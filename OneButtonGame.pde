@@ -4,7 +4,7 @@ import ch.bildspur.postfx.*;
 import processing.sound.*;
 
 PostFX fx;
-GameObject obj;
+GameObject obj, obj2;
 TimeKey[] keys = new TimeKey[KeyTime.KEYSIZE];
 TimeBar keyTimeBar;
 Number number;
@@ -33,11 +33,18 @@ public void setup(){
     keys[i].position.y = height - keys[i].height() - keyTimeBar.height();
   }
   obj = new GameObject(ConstructedImages.player, "pixelPerfect.frag");
-  number = new Number(10, "pixelPerfect.frag");
   obj.scale = 1F;
   obj.speed = 30;
   obj.movement(1, 2);
   obj.position(3, 10);
+  obj.collider(true, true);
+  obj2 = new GameObject(ConstructedImages.player, "pixelPerfect.frag");
+  obj2.scale = 1F;
+  obj2.speed = 30;
+  obj2.movement(3, 2);
+  obj2.position(100, 10);
+  obj2.collider(true, true);
+  number = new Number(10, "pixelPerfect.frag");
   number.scale(1);
   number.baseColor(Colors.highlight);
   number.number = 0;
@@ -73,12 +80,20 @@ public void draw() {
   tvPass.aberration = tvPass.aberration - 0.1F * Time.delta() <= 0.05F ? 0.05F : tvPass.aberration - 0.1F * Time.delta();
 
   // if (Time.getTimer("Second") <= 0)
-  obj.move();
-  if (obj.collisions > 0) { Sounds.bounce.play(); tvPass.aberration += 0.3F; number.number = millis(); }
-  if ((obj.collisions & CVERTICAL) > 0) obj.movement(-obj.movement().x, obj.movement().y);
-  if ((obj.collisions & CHORIZONTAL) > 0) obj.movement(obj.movement().x, -obj.movement().y);
+  checkCollisions();
 
-  if (mousePressed) {
+  if (obj.collisions > 0) { Sounds.bounce.play(); tvPass.aberration = 0.3F; number.number = millis(); }
+  if ((obj.collisions & CVERTICAL) > 0) { obj.movement(-obj.movement().x, obj.movement().y); }
+  if ((obj.collisions & CHORIZONTAL) > 0) { obj.movement(obj.movement().x, -obj.movement().y); }
+
+  if (obj2.collisions > 0) { Sounds.bounce.play(); tvPass.aberration = 0.3F; number.number = millis(); }
+  if ((obj2.collisions & CVERTICAL) > 0) { obj2.movement(-obj2.movement().x, obj2.movement().y); }
+  if ((obj2.collisions & CHORIZONTAL) > 0) { obj2.movement(obj2.movement().x, -obj2.movement().y); }
+
+  obj.move();
+  obj2.move();
+
+  if (mousePressed || keyPressed) {
     // tvPass.aberration = 0F;
     KeyTime.time = (KeyTime.time + 0.05F * Time.delta()) % 1;
   } else {
@@ -92,6 +107,7 @@ public void draw() {
   }
   keyTimeBar.draw();
   obj.draw();
+  obj2.draw();
   number.position(width - 15 - number.width(), 20);
   number.draw();
 
