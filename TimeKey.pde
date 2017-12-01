@@ -22,11 +22,7 @@ public class TimeKey extends GameObject {
 
   public void playSound() {
     if (!active && KeyTime.time >= time) {
-      Sounds.keyActive.play(time, 0.5F);
-    }
-
-    if (active && KeyTime.time < time) {
-      Sounds.keyActive.play(time - 0.5, 0.5F);
+      Sounds.keyActive.play(time, 0.25F);
     }
   }
 

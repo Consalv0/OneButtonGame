@@ -70,11 +70,11 @@ public void draw() {
   //   line(i * width / 20, 0, i * width / 20, height);
   // }
 
-  tvPass.aberration = tvPass.aberration - 0.1F * Time.delta() <= 0.08F ? 0.08F : tvPass.aberration - 0.1F * Time.delta();
+  tvPass.aberration = tvPass.aberration - 0.1F * Time.delta() <= 0.05F ? 0.05F : tvPass.aberration - 0.1F * Time.delta();
 
   // if (Time.getTimer("Second") <= 0)
   obj.move();
-  if (obj.collisions > 0) { Sounds.bounce.play(); tvPass.aberration += 0.4F; number.number = millis(); }
+  if (obj.collisions > 0) { Sounds.bounce.play(); tvPass.aberration += 0.3F; number.number = millis(); }
   if ((obj.collisions & CVERTICAL) > 0) obj.movement(-obj.movement().x, obj.movement().y);
   if ((obj.collisions & CHORIZONTAL) > 0) obj.movement(obj.movement().x, -obj.movement().y);
 

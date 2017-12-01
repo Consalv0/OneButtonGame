@@ -4,6 +4,6 @@ public static class Sounds {
 
   static void initialize(PApplet applet) {
     bounce = new SoundFile(applet, "pi.wav");
-    keyActive = new SoundFile(applet, "pi.wav");
+    keyActive = new SoundFile(applet, "pshp.wav");
   }
 }

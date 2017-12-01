@@ -91,11 +91,11 @@ public void draw() {
   //   line(i * width / 20, 0, i * width / 20, height);
   // }
 
-  tvPass.aberration = tvPass.aberration - 0.1F * Time.delta() <= 0.08F ? 0.08F : tvPass.aberration - 0.1F * Time.delta();
+  tvPass.aberration = tvPass.aberration - 0.1F * Time.delta() <= 0.05F ? 0.05F : tvPass.aberration - 0.1F * Time.delta();
 
   // if (Time.getTimer("Second") <= 0)
   obj.move();
-  if (obj.collisions > 0) { Sounds.bounce.play(); tvPass.aberration += 0.4F; number.number = millis(); }
+  if (obj.collisions > 0) { Sounds.bounce.play(); tvPass.aberration += 0.3F; number.number = millis(); }
   if ((obj.collisions & CVERTICAL) > 0) obj.movement(-obj.movement().x, obj.movement().y);
   if ((obj.collisions & CHORIZONTAL) > 0) obj.movement(obj.movement().x, -obj.movement().y);
 
@@ -606,7 +606,7 @@ public static class Sounds {
 
   public static void initialize(PApplet applet) {
     bounce = new SoundFile(applet, "pi.wav");
-    keyActive = new SoundFile(applet, "pi.wav");
+    keyActive = new SoundFile(applet, "pshp.wav");
   }
 }
 class TVPass implements Pass {
@@ -755,11 +755,7 @@ public class TimeKey extends GameObject {
 
   public void playSound() {
     if (!active && KeyTime.time >= time) {
-      Sounds.keyActive.play(time, 0.5F);
-    }
-
-    if (active && KeyTime.time < time) {
-      Sounds.keyActive.play(time - 0.5f, 0.5F);
+      Sounds.keyActive.play(time, 0.25F);
     }
   }
 
