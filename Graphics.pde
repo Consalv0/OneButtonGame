@@ -42,9 +42,7 @@ public static class Graphics {
 
   static void drawPostFX(PGraphics g, PostFX fx, Pass pass) {
     g.resetShader();
-    if (screenResized) {
-      fx.setResolution(g);
-    }
+    if (screenResized) fx.setResolution(g);
     drawFrame(g, blendColor(0xFF444444, 0xFF555555, MULTIPLY)); // Draw the TV Frame
 
     fx.render()

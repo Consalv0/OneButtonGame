@@ -11,7 +11,7 @@ class TimeBar extends GameObject {
     shaderName = shaderN;
     time = 0;
 
-    pixelOffset = new PVector(0.5F / sprite.width * 1, 0.5F / sprite.height * 1);
+    pixelOffset = new PVector(0.5F / sprite.width, 0.5F / sprite.height);
   }
 
   public void draw() {
@@ -29,7 +29,7 @@ class TimeBar extends GameObject {
     shader(Graphics.getShader(shaderName));
     shader.set("sprite", spriteON);
     shader.set("spriteSize", width * time, (float)spriteON.height);
-    shader.set("pixelOffset", pixelOffset.x, pixelOffset.y);
+    shader.set("pixelOffset", 0.5F / sprite.width * time, pixelOffset.y);
 
     shader.set("baseColor", getRed(baseColor, true), getGreen(baseColor, true), getBlue(baseColor, true), 1 - getAlpha(baseColor));
 

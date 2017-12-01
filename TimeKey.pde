@@ -1,9 +1,9 @@
-float TIMEWIDTH = 5;
-public class TimePoint extends GameObject {
+public class TimeKey extends GameObject {
   private float time;
+  public boolean active;
   PImage spriteON, spriteOFF;
 
-  TimePoint(int[][] image_on, int[][] image_off, String shaderN, float t) {
+  TimeKey(int[][] image_on, int[][] image_off, String shaderN, float t) {
     spriteON = makePImage(image_on);
     spriteOFF = makePImage(image_off);
     sprite = spriteON;
@@ -20,6 +20,16 @@ public class TimePoint extends GameObject {
     position.x = time * width - width() / 2;
   }
 
+  public void playSound() {
+    if (!active && KeyTime.time >= time) {
+      Sounds.keyActive.play(time, 0.5F);
+    }
+
+    if (active && KeyTime.time < time) {
+      Sounds.keyActive.play(time - 0.5, 0.5F);
+    }
+  }
+
   public void draw() {
     shader(Graphics.getShader(shaderName));
     shader.set("sprite", sprite);
@@ -28,7 +38,10 @@ public class TimePoint extends GameObject {
 
     shader.set("baseColor", getRed(baseColor, true), getGreen(baseColor, true), getBlue(baseColor, true), 1 - getAlpha(baseColor));
     // shader.set("time", millis() * 0.001F);
-    sprite = KeyTime.time >= time ? spriteON : spriteOFF;
+
+    playSound();
+    active = KeyTime.time >= time;
+    sprite = active ? spriteON : spriteOFF;
     image(sprite, (int)(position.x / Graphics.scale) * Graphics.scale, (int)(position.y / Graphics.scale) * Graphics.scale,
           sprite.width * Graphics.scale * scale, sprite.height * Graphics.scale * scale);
   }

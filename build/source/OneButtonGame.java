@@ -26,7 +26,7 @@ public class OneButtonGame extends PApplet {
 
 PostFX fx;
 GameObject obj;
-TimePoint[] tPoints = new TimePoint[4];
+TimeKey[] keys = new TimeKey[KeyTime.KEYSIZE];
 TimeBar keyTimeBar;
 Number number;
 TVPass tvPass;
@@ -48,10 +48,10 @@ public void setup(){
   keyTimeBar = new TimeBar(ConstructedImages.timerLine_ON, ConstructedImages.timerLine_OFF, "pixelPerfect.frag");
   keyTimeBar.scale = 0.5F;
   keyTimeBar.position.y = height - keyTimeBar.height();
-  for (int i = 0; i < 4; i++) {
-    tPoints[i] = new TimePoint(ConstructedImages.downarrow_ON, ConstructedImages.downarrow_OFF, "pixelPerfect.frag", 0);
-    tPoints[i].scale = 0.5F;
-    tPoints[i].position.y = height - tPoints[i].height() - keyTimeBar.height();
+  for (int i = 0; i < KeyTime.KEYSIZE; i++) {
+    keys[i] = new TimeKey(ConstructedImages.downarrow_ON, ConstructedImages.downarrow_OFF, "pixelPerfect.frag", i / KeyTime.KEYSIZE);
+    keys[i].scale = 0.5F;
+    keys[i].position.y = height - keys[i].height() - keyTimeBar.height();
   }
   obj = new GameObject(ConstructedImages.player, "pixelPerfect.frag");
   number = new Number(10, "pixelPerfect.frag");
@@ -69,11 +69,11 @@ public void setup(){
 }
 
 public void draw() {
-  /* Screen has resized */
+  /* Screen has been resized */
   if (Graphics.screenResized) {
-    for (int i = 0; i < 4; i++) {
-      tPoints[i].timer(((i + 1) / 4.5F) + 0.07F);
-      tPoints[i].position.y = height - tPoints[i].height() - keyTimeBar.height();
+    for (int i = 0; i < KeyTime.KEYSIZE; i++) {
+      keys[i].timer(map(pow(KeyTime.KEYSIZE - (i + 1), 1.5f) / pow(KeyTime.KEYSIZE, 1.5f), 0, 1, 0.95f, 0));
+      keys[i].position.y = height - keys[i].height() - keyTimeBar.height();
     }
     keyTimeBar.position.y = height - keyTimeBar.height();
   }
@@ -91,11 +91,7 @@ public void draw() {
   //   line(i * width / 20, 0, i * width / 20, height);
   // }
 
-  if (!mousePressed) {
-    tvPass.aberration = tvPass.aberration - 0.1F * Time.delta() <= 0.08F ? 0.08F : tvPass.aberration - 0.1F * Time.delta();
-  } else {
-    tvPass.aberration = 0F;
-  }
+  tvPass.aberration = tvPass.aberration - 0.1F * Time.delta() <= 0.08F ? 0.08F : tvPass.aberration - 0.1F * Time.delta();
 
   // if (Time.getTimer("Second") <= 0)
   obj.move();
@@ -103,18 +99,17 @@ public void draw() {
   if ((obj.collisions & CVERTICAL) > 0) obj.movement(-obj.movement().x, obj.movement().y);
   if ((obj.collisions & CHORIZONTAL) > 0) obj.movement(obj.movement().x, -obj.movement().y);
 
-  if (Time.getTimer("Input") <= 0) {
-    if (mousePressed) {
-      KeyTime.time = (KeyTime.time + 0.1F * Time.delta()) % 1;
-    } else {
-      KeyTime.time = KeyTime.time - 0.1F * Time.delta() <= 0 ? KeyTime.time : KeyTime.time - 0.1F * Time.delta();
-    }
-    // obj.position = new PVector(200 * cos(millis() / 500F) + mouseX, 200 * sin(millis() / 500F) + mouseY);
+  if (mousePressed) {
+    // tvPass.aberration = 0F;
+    KeyTime.time = (KeyTime.time + 0.05F * Time.delta()) % 1;
+  } else {
+    KeyTime.time = KeyTime.time - 0.05F * Time.delta() <= 0 ? KeyTime.time : KeyTime.time - 0.05F * Time.delta();
   }
+    // obj.position = new PVector(200 * cos(millis() / 500F) + mouseX, 200 * sin(millis() / 500F) + mouseY);
   keyTimeBar.time = KeyTime.time;
 
-  for (int i = 0; i < 4; i++) {
-    tPoints[i].draw();
+  for (int i = 0; i < KeyTime.KEYSIZE; i++) {
+    keys[i].draw();
   }
   keyTimeBar.draw();
   obj.draw();
@@ -497,9 +492,7 @@ public static class Graphics {
 
   public static void drawPostFX(PGraphics g, PostFX fx, Pass pass) {
     g.resetShader();
-    if (screenResized) {
-      fx.setResolution(g);
-    }
+    if (screenResized) fx.setResolution(g);
     drawFrame(g, blendColor(0xFF444444, 0xFF555555, MULTIPLY)); // Draw the TV Frame
 
     fx.render()
@@ -521,7 +514,9 @@ public PImage makePImage(int[][] ipixels) {
   return image;
 }
 static class KeyTime {
+  static final int KEYSIZE = 4;
   static float time = 0;
+  static int activeTimePoint;
 }
 class Number {
   public long number;
@@ -607,9 +602,11 @@ class Number {
 }
 public static class Sounds {
   static SoundFile bounce;
+  static SoundFile keyActive;
 
   public static void initialize(PApplet applet) {
     bounce = new SoundFile(applet, "pi.wav");
+    keyActive = new SoundFile(applet, "pi.wav");
   }
 }
 class TVPass implements Pass {
@@ -708,7 +705,7 @@ class TimeBar extends GameObject {
     shaderName = shaderN;
     time = 0;
 
-    pixelOffset = new PVector(0.5F / sprite.width * 1, 0.5F / sprite.height * 1);
+    pixelOffset = new PVector(0.5F / sprite.width, 0.5F / sprite.height);
   }
 
   public void draw() {
@@ -726,7 +723,7 @@ class TimeBar extends GameObject {
     shader(Graphics.getShader(shaderName));
     shader.set("sprite", spriteON);
     shader.set("spriteSize", width * time, (float)spriteON.height);
-    shader.set("pixelOffset", pixelOffset.x, pixelOffset.y);
+    shader.set("pixelOffset", 0.5F / sprite.width * time, pixelOffset.y);
 
     shader.set("baseColor", getRed(baseColor, true), getGreen(baseColor, true), getBlue(baseColor, true), 1 - getAlpha(baseColor));
 
@@ -734,12 +731,12 @@ class TimeBar extends GameObject {
           width * time, sprite.height * Graphics.scale * scale);
   }
 }
-float TIMEWIDTH = 5;
-public class TimePoint extends GameObject {
+public class TimeKey extends GameObject {
   private float time;
+  public boolean active;
   PImage spriteON, spriteOFF;
 
-  TimePoint(int[][] image_on, int[][] image_off, String shaderN, float t) {
+  TimeKey(int[][] image_on, int[][] image_off, String shaderN, float t) {
     spriteON = makePImage(image_on);
     spriteOFF = makePImage(image_off);
     sprite = spriteON;
@@ -756,6 +753,16 @@ public class TimePoint extends GameObject {
     position.x = time * width - width() / 2;
   }
 
+  public void playSound() {
+    if (!active && KeyTime.time >= time) {
+      Sounds.keyActive.play(time, 0.5F);
+    }
+
+    if (active && KeyTime.time < time) {
+      Sounds.keyActive.play(time - 0.5f, 0.5F);
+    }
+  }
+
   public void draw() {
     shader(Graphics.getShader(shaderName));
     shader.set("sprite", sprite);
@@ -764,7 +771,10 @@ public class TimePoint extends GameObject {
 
     shader.set("baseColor", getRed(baseColor, true), getGreen(baseColor, true), getBlue(baseColor, true), 1 - getAlpha(baseColor));
     // shader.set("time", millis() * 0.001F);
-    sprite = KeyTime.time >= time ? spriteON : spriteOFF;
+
+    playSound();
+    active = KeyTime.time >= time;
+    sprite = active ? spriteON : spriteOFF;
     image(sprite, (int)(position.x / Graphics.scale) * Graphics.scale, (int)(position.y / Graphics.scale) * Graphics.scale,
           sprite.width * Graphics.scale * scale, sprite.height * Graphics.scale * scale);
   }

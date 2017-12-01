@@ -5,7 +5,7 @@ import processing.sound.*;
 
 PostFX fx;
 GameObject obj;
-TimePoint[] tPoints = new TimePoint[4];
+TimeKey[] keys = new TimeKey[KeyTime.KEYSIZE];
 TimeBar keyTimeBar;
 Number number;
 TVPass tvPass;
@@ -27,10 +27,10 @@ public void setup(){
   keyTimeBar = new TimeBar(ConstructedImages.timerLine_ON, ConstructedImages.timerLine_OFF, "pixelPerfect.frag");
   keyTimeBar.scale = 0.5F;
   keyTimeBar.position.y = height - keyTimeBar.height();
-  for (int i = 0; i < 4; i++) {
-    tPoints[i] = new TimePoint(ConstructedImages.downarrow_ON, ConstructedImages.downarrow_OFF, "pixelPerfect.frag", 0);
-    tPoints[i].scale = 0.5F;
-    tPoints[i].position.y = height - tPoints[i].height() - keyTimeBar.height();
+  for (int i = 0; i < KeyTime.KEYSIZE; i++) {
+    keys[i] = new TimeKey(ConstructedImages.downarrow_ON, ConstructedImages.downarrow_OFF, "pixelPerfect.frag", i / KeyTime.KEYSIZE);
+    keys[i].scale = 0.5F;
+    keys[i].position.y = height - keys[i].height() - keyTimeBar.height();
   }
   obj = new GameObject(ConstructedImages.player, "pixelPerfect.frag");
   number = new Number(10, "pixelPerfect.frag");
@@ -48,11 +48,11 @@ public void setup(){
 }
 
 public void draw() {
-  /* Screen has resized */
+  /* Screen has been resized */
   if (Graphics.screenResized) {
-    for (int i = 0; i < 4; i++) {
-      tPoints[i].timer(((i + 1) / 4.5F) + 0.07F);
-      tPoints[i].position.y = height - tPoints[i].height() - keyTimeBar.height();
+    for (int i = 0; i < KeyTime.KEYSIZE; i++) {
+      keys[i].timer(map(pow(KeyTime.KEYSIZE - (i + 1), 1.5) / pow(KeyTime.KEYSIZE, 1.5), 0, 1, 0.95, 0));
+      keys[i].position.y = height - keys[i].height() - keyTimeBar.height();
     }
     keyTimeBar.position.y = height - keyTimeBar.height();
   }
@@ -70,11 +70,7 @@ public void draw() {
   //   line(i * width / 20, 0, i * width / 20, height);
   // }
 
-  if (!mousePressed) {
-    tvPass.aberration = tvPass.aberration - 0.1F * Time.delta() <= 0.08F ? 0.08F : tvPass.aberration - 0.1F * Time.delta();
-  } else {
-    tvPass.aberration = 0F;
-  }
+  tvPass.aberration = tvPass.aberration - 0.1F * Time.delta() <= 0.08F ? 0.08F : tvPass.aberration - 0.1F * Time.delta();
 
   // if (Time.getTimer("Second") <= 0)
   obj.move();
@@ -82,18 +78,17 @@ public void draw() {
   if ((obj.collisions & CVERTICAL) > 0) obj.movement(-obj.movement().x, obj.movement().y);
   if ((obj.collisions & CHORIZONTAL) > 0) obj.movement(obj.movement().x, -obj.movement().y);
 
-  if (Time.getTimer("Input") <= 0) {
-    if (mousePressed) {
-      KeyTime.time = (KeyTime.time + 0.1F * Time.delta()) % 1;
-    } else {
-      KeyTime.time = KeyTime.time - 0.1F * Time.delta() <= 0 ? KeyTime.time : KeyTime.time - 0.1F * Time.delta();
-    }
-    // obj.position = new PVector(200 * cos(millis() / 500F) + mouseX, 200 * sin(millis() / 500F) + mouseY);
+  if (mousePressed) {
+    // tvPass.aberration = 0F;
+    KeyTime.time = (KeyTime.time + 0.05F * Time.delta()) % 1;
+  } else {
+    KeyTime.time = KeyTime.time - 0.05F * Time.delta() <= 0 ? KeyTime.time : KeyTime.time - 0.05F * Time.delta();
   }
+    // obj.position = new PVector(200 * cos(millis() / 500F) + mouseX, 200 * sin(millis() / 500F) + mouseY);
   keyTimeBar.time = KeyTime.time;
 
-  for (int i = 0; i < 4; i++) {
-    tPoints[i].draw();
+  for (int i = 0; i < KeyTime.KEYSIZE; i++) {
+    keys[i].draw();
   }
   keyTimeBar.draw();
   obj.draw();
