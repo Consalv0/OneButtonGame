@@ -1,10 +1,10 @@
 /* Collision Flags */
 final int CTOP = 2;
-final int CDOWN = 4;
+final int CBOTTOM = 4;
 final int CLEFT = 8;
 final int CRIGHT = 16;
-final int CHORIZONTAL = CTOP | CDOWN;
-final int CVERTICAL = CLEFT | CRIGHT;
+final int CLATERAL = CTOP | CBOTTOM;
+final int CNOLATERAL = CLEFT | CRIGHT;
 
 ArrayList<GameObject> rectColliders = new ArrayList<GameObject>();
 
@@ -28,7 +28,7 @@ void checkCollisions() {
       if (actual.position.x < 0)                collisions |= CLEFT;
       else if (actual.position.x + w > width)   collisions |= CRIGHT;
       else if (actual.position.y < 0)           collisions |= CTOP;
-      else if (actual.position.y + h > height)  collisions |= CDOWN;
+      else if (actual.position.y + h > height)  collisions |= CBOTTOM;
       if (collisions > 0) {
         actual.collisions |= collisions;
         actual.onBorderCollision(collisions);
@@ -40,7 +40,7 @@ void checkCollisions() {
         actual.position.y <= 0 ? actual.position.y + Graphics.scale * actual.scale / 10 : actual.position.y;
     }
 
-    /* Other rects collisions */
+    /* Other rects collisions using https://en.wikipedia.org/wiki/Minkowski_addition */
     for (int j = i + 1; j < rectColliders.size(); j++) {
       other = rectColliders.get(j);
 
@@ -67,11 +67,11 @@ void checkCollisions() {
           } else {
             /* at the top */
             other.collisions |= CTOP;
-            actual.collisions |= CDOWN;
+            actual.collisions |= CBOTTOM;
           }
         } else if (oh > -ow) {
             /* at the bottom */
-            other.collisions |= CDOWN;
+            other.collisions |= CBOTTOM;
             actual.collisions |= CTOP;
         } else {
           /* on the left */

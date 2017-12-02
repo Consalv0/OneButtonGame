@@ -40,13 +40,13 @@ public void setup(){
   obj.collider(true, true);
   obj2 = new GameObject(ConstructedImages.player, "pixelPerfect.frag");
   obj2.scale = 3F;
-  obj2.speed = 10;
+  obj2.speed = 20;
   obj2.movement(3, 2);
   obj2.position(900, 300);
   obj2.collider(true, true);
   obj3 = new GameObject(ConstructedImages.player, "pixelPerfect.frag");
   obj3.scale = 1F;
-  obj3.speed = 2;
+  obj3.speed = 1;
   obj3.movement(1, 1);
   obj3.position(3, 500);
   obj3.collider(true, true);
@@ -54,6 +54,9 @@ public void setup(){
   number.scale(1);
   number.baseColor(Colors.highlight);
   number.number = 0;
+  number.speed = 9;
+  number.movement(1, 2);
+  number.collider(true, true);
 
   Time.add("ScreenSizeUpdate", 200);
   Time.add("Input", 15);
@@ -90,21 +93,26 @@ public void draw() {
   // if (Time.getTimer("Second") <= 0)
   checkCollisions();
 
-  if (obj.collisions > 0) { Sounds.bounce.play(); tvPass.aberration = 0.3F; number.number = millis(); }
-  if ((obj.collisions & CVERTICAL) > 0) { obj.movement(-obj.movement().x, obj.movement().y); }
-  if ((obj.collisions & CHORIZONTAL) > 0) { obj.movement(obj.movement().x, -obj.movement().y); }
+  if (obj.collisions > 0) { Sounds.bounce.play(); tvPass.aberration = 0.3F; }
+  if ((obj.collisions & CNOLATERAL) > 0) { obj.movement(-obj.movement().x, obj.movement().y); }
+  if ((obj.collisions & CLATERAL) > 0) { obj.movement(obj.movement().x, -obj.movement().y); }
 
-  if (obj2.collisions > 0) { Sounds.bounce.play(); tvPass.aberration = 0.3F; number.number = millis(); }
-  if ((obj2.collisions & CVERTICAL) > 0) { obj2.movement(-obj2.movement().x, obj2.movement().y); }
-  if ((obj2.collisions & CHORIZONTAL) > 0) { obj2.movement(obj2.movement().x, -obj2.movement().y); }
+  if (obj2.collisions > 0) { Sounds.bounce.play(); tvPass.aberration = 0.3F; }
+  if ((obj2.collisions & CNOLATERAL) > 0) { obj2.movement(-obj2.movement().x, obj2.movement().y); }
+  if ((obj2.collisions & CLATERAL) > 0) { obj2.movement(obj2.movement().x, -obj2.movement().y); }
 
-  if (obj3.collisions > 0) { Sounds.bounce.play(); tvPass.aberration = 0.3F; number.number = millis(); }
-  if ((obj3.collisions & CVERTICAL) > 0) { obj3.movement(-obj3.movement().x, obj3.movement().y); }
-  if ((obj3.collisions & CHORIZONTAL) > 0) { obj3.movement(obj3.movement().x, -obj3.movement().y); }
+  if (obj3.collisions > 0) { Sounds.bounce.play(); tvPass.aberration = 0.3F; }
+  if ((obj3.collisions & CNOLATERAL) > 0) { obj3.movement(-obj3.movement().x, obj3.movement().y); }
+  if ((obj3.collisions & CLATERAL) > 0) { obj3.movement(obj3.movement().x, -obj3.movement().y); }
+
+  if (number.collisions > 0) { Sounds.bounce.play(); tvPass.aberration = 0.3F; number.number = millis(); }
+  if ((number.collisions & CNOLATERAL) > 0) { number.movement(-number.movement().x, number.movement().y); }
+  if ((number.collisions & CLATERAL) > 0) { number.movement(number.movement().x, -number.movement().y); }
 
   obj.move();
   obj2.move();
   obj3.move();
+  number.move();
 
   if (mousePressed || keyPressed) {
     // tvPass.aberration = 0F;
@@ -115,14 +123,14 @@ public void draw() {
     // obj.position = new PVector(200 * cos(millis() / 500F) + mouseX, 200 * sin(millis() / 500F) + mouseY);
   keyTimeBar.time = KeyTime.time;
 
+  obj.draw();
+  obj2.draw();
+  obj3.draw();
   for (int i = 0; i < KeyTime.KEYSIZE; i++) {
     keys[i].draw();
   }
   keyTimeBar.draw();
-  obj.draw();
-  obj2.draw();
-  obj3.draw();
-  number.position(width - 15 - number.width(), 20);
+  // number.position(width - 15 - number.width(), 20);
   number.draw();
 
   resetShader();

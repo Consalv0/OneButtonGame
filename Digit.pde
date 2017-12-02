@@ -1,4 +1,4 @@
-class Digit {
+class Digit extends GameObject {
   static final int NEGATIVE = 10;
   int digit;
   String shaderName;
@@ -7,9 +7,6 @@ class Digit {
   private PVector pixelOffset;
 
   public PImage[] sprites = new PImage[11];
-  public int baseColor = Colors.base;
-  public PVector position = new PVector();
-  public float scale = 1;
 
   Digit(int no, String shaderN) {
     for (int i = 0; i < 10; i++) {

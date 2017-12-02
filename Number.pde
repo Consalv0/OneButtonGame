@@ -1,9 +1,6 @@
-class Number {
+class Number extends GameObject {
   public long number;
 
-  private float scale = 1;
-  private int baseColor = Colors.base;
-  private PVector position = new PVector();
   private int dsize;
   private Digit[] digits;
 
@@ -19,6 +16,9 @@ class Number {
 
   public float width() {
     return dsize * (digits[0].sprites[0].width + 1 * (1 / scale)) * Graphics.scale * scale;
+  }
+  public float height() {
+    return digits[0].sprites[0].height * Graphics.scale * scale;
   }
 
   public void position(float x, float y) {
@@ -53,6 +53,15 @@ class Number {
     scale = s;
     for (int i = 0; i < dsize; i++) {
       digits[i].scale = scale;
+      digits[i].position.x = position.x + (dsize - i - 1) * (digits[i].sprites[0].width + 1 * (1 / scale)) * Graphics.scale * scale;
+      digits[i].position.y = position.y;
+    }
+  }
+
+  public void translate(float x, float y) {
+    position.x += x;
+    position.y += y;
+    for (int i = 0; i < dsize; i++) {
       digits[i].position.x = position.x + (dsize - i - 1) * (digits[i].sprites[0].width + 1 * (1 / scale)) * Graphics.scale * scale;
       digits[i].position.y = position.y;
     }

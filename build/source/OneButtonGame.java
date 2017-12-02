@@ -61,13 +61,13 @@ public void setup(){
   obj.collider(true, true);
   obj2 = new GameObject(ConstructedImages.player, "pixelPerfect.frag");
   obj2.scale = 3F;
-  obj2.speed = 10;
+  obj2.speed = 20;
   obj2.movement(3, 2);
   obj2.position(900, 300);
   obj2.collider(true, true);
   obj3 = new GameObject(ConstructedImages.player, "pixelPerfect.frag");
   obj3.scale = 1F;
-  obj3.speed = 2;
+  obj3.speed = 1;
   obj3.movement(1, 1);
   obj3.position(3, 500);
   obj3.collider(true, true);
@@ -75,6 +75,9 @@ public void setup(){
   number.scale(1);
   number.baseColor(Colors.highlight);
   number.number = 0;
+  number.speed = 9;
+  number.movement(1, 2);
+  number.collider(true, true);
 
   Time.add("ScreenSizeUpdate", 200);
   Time.add("Input", 15);
@@ -111,21 +114,26 @@ public void draw() {
   // if (Time.getTimer("Second") <= 0)
   checkCollisions();
 
-  if (obj.collisions > 0) { Sounds.bounce.play(); tvPass.aberration = 0.3F; number.number = millis(); }
-  if ((obj.collisions & CVERTICAL) > 0) { obj.movement(-obj.movement().x, obj.movement().y); }
-  if ((obj.collisions & CHORIZONTAL) > 0) { obj.movement(obj.movement().x, -obj.movement().y); }
+  if (obj.collisions > 0) { Sounds.bounce.play(); tvPass.aberration = 0.3F; }
+  if ((obj.collisions & CNOLATERAL) > 0) { obj.movement(-obj.movement().x, obj.movement().y); }
+  if ((obj.collisions & CLATERAL) > 0) { obj.movement(obj.movement().x, -obj.movement().y); }
 
-  if (obj2.collisions > 0) { Sounds.bounce.play(); tvPass.aberration = 0.3F; number.number = millis(); }
-  if ((obj2.collisions & CVERTICAL) > 0) { obj2.movement(-obj2.movement().x, obj2.movement().y); }
-  if ((obj2.collisions & CHORIZONTAL) > 0) { obj2.movement(obj2.movement().x, -obj2.movement().y); }
+  if (obj2.collisions > 0) { Sounds.bounce.play(); tvPass.aberration = 0.3F; }
+  if ((obj2.collisions & CNOLATERAL) > 0) { obj2.movement(-obj2.movement().x, obj2.movement().y); }
+  if ((obj2.collisions & CLATERAL) > 0) { obj2.movement(obj2.movement().x, -obj2.movement().y); }
 
-  if (obj3.collisions > 0) { Sounds.bounce.play(); tvPass.aberration = 0.3F; number.number = millis(); }
-  if ((obj3.collisions & CVERTICAL) > 0) { obj3.movement(-obj3.movement().x, obj3.movement().y); }
-  if ((obj3.collisions & CHORIZONTAL) > 0) { obj3.movement(obj3.movement().x, -obj3.movement().y); }
+  if (obj3.collisions > 0) { Sounds.bounce.play(); tvPass.aberration = 0.3F; }
+  if ((obj3.collisions & CNOLATERAL) > 0) { obj3.movement(-obj3.movement().x, obj3.movement().y); }
+  if ((obj3.collisions & CLATERAL) > 0) { obj3.movement(obj3.movement().x, -obj3.movement().y); }
+
+  if (number.collisions > 0) { Sounds.bounce.play(); tvPass.aberration = 0.3F; number.number = millis(); }
+  if ((number.collisions & CNOLATERAL) > 0) { number.movement(-number.movement().x, number.movement().y); }
+  if ((number.collisions & CLATERAL) > 0) { number.movement(number.movement().x, -number.movement().y); }
 
   obj.move();
   obj2.move();
   obj3.move();
+  number.move();
 
   if (mousePressed || keyPressed) {
     // tvPass.aberration = 0F;
@@ -136,14 +144,14 @@ public void draw() {
     // obj.position = new PVector(200 * cos(millis() / 500F) + mouseX, 200 * sin(millis() / 500F) + mouseY);
   keyTimeBar.time = KeyTime.time;
 
+  obj.draw();
+  obj2.draw();
+  obj3.draw();
   for (int i = 0; i < KeyTime.KEYSIZE; i++) {
     keys[i].draw();
   }
   keyTimeBar.draw();
-  obj.draw();
-  obj2.draw();
-  obj3.draw();
-  number.position(width - 15 - number.width(), 20);
+  // number.position(width - 15 - number.width(), 20);
   number.draw();
 
   resetShader();
@@ -156,11 +164,11 @@ public void draw() {
 }
 /* Collision Flags */
 final int CTOP = 2;
-final int CDOWN = 4;
+final int CBOTTOM = 4;
 final int CLEFT = 8;
 final int CRIGHT = 16;
-final int CHORIZONTAL = CTOP | CDOWN;
-final int CVERTICAL = CLEFT | CRIGHT;
+final int CLATERAL = CTOP | CBOTTOM;
+final int CNOLATERAL = CLEFT | CRIGHT;
 
 ArrayList<GameObject> rectColliders = new ArrayList<GameObject>();
 
@@ -184,7 +192,7 @@ public void checkCollisions() {
       if (actual.position.x < 0)                collisions |= CLEFT;
       else if (actual.position.x + w > width)   collisions |= CRIGHT;
       else if (actual.position.y < 0)           collisions |= CTOP;
-      else if (actual.position.y + h > height)  collisions |= CDOWN;
+      else if (actual.position.y + h > height)  collisions |= CBOTTOM;
       if (collisions > 0) {
         actual.collisions |= collisions;
         actual.onBorderCollision(collisions);
@@ -205,10 +213,10 @@ public void checkCollisions() {
       dx = (actual.position.x + w * 0.5f) - (other.position.x + other.width() * 0.5f);
       dy = (actual.position.y + h * 0.5f) - (other.position.y + other.height() * 0.5f);
 
-      fill(0x6677CC88);
+      /* fill(0x6677CC88);
       rectMode(CENTER);
-      rect(dx + width * 0.5f, dy + height * 0.5f, ow * 2, oh * 2);
-      rectMode(CORNER);
+      rect(dx + width * 0.5, dy + height * 0.5, ow * 2, oh * 2);
+      rectMode(CORNER); */
 
       if (abs(dx) <= ow && abs(dy) <= oh) {
         /* Collision! */
@@ -223,11 +231,11 @@ public void checkCollisions() {
           } else {
             /* at the top */
             other.collisions |= CTOP;
-            actual.collisions |= CDOWN;
+            actual.collisions |= CBOTTOM;
           }
         } else if (oh > -ow) {
             /* at the bottom */
-            other.collisions |= CDOWN;
+            other.collisions |= CBOTTOM;
             actual.collisions |= CTOP;
         } else {
           /* on the left */
@@ -235,37 +243,6 @@ public void checkCollisions() {
           actual.collisions |= CRIGHT;
         }
       }
-      // ow = other.width();
-      // oh = other.height();
-      //
-      // if (actual.position.x < other.position.x + ow && actual.position.x > other.position.x - ow / other.scale) {
-      //   if (!(actual.position.y > other.position.y + oh || actual.position.y + h < other.position.y)) {
-      //     other.collisions |= CRIGHT;
-      //     actual.collisions |= CLEFT;
-      //     actual.onCollision(other); other.onCollision(actual);
-      //   }
-      // }
-      // if (actual.position.x + w > other.position.x && actual.position.x + w < other.position.x + ow / other.scale) {
-      //   if (!(actual.position.y > other.position.y + oh || actual.position.y + h < other.position.y)) {
-      //     other.collisions |= CLEFT;
-      //     actual.collisions |= CRIGHT;
-      //     actual.onCollision(other); other.onCollision(actual);
-      //   }
-      // }
-      // if (actual.position.y < other.position.y + oh && actual.position.y > other.position.y - oh / other.scale) {
-      //   if (!(actual.position.x > other.position.x + ow || actual.position.x + w < other.position.x)) {
-      //     other.collisions |= CTOP;
-      //     actual.collisions |= CDOWN;
-      //     actual.onCollision(other); other.onCollision(actual);
-      //   }
-      // }
-      // if (actual.position.y + h > other.position.y && actual.position.y + h < other.position.y + oh / other.scale) {
-      //   if (!(actual.position.x > other.position.x + ow || actual.position.x + w < other.position.x)) {
-      //     other.collisions |= CDOWN;
-      //     actual.collisions |= CTOP;
-      //     actual.onCollision(other); other.onCollision(actual);
-      //   }
-      // }
     }
   }
 }
@@ -417,7 +394,7 @@ static class ConstructedImages {
    {0, 5, 5, 5, 0},
    {0, 0, 5, 0, 0}};
 }
-class Digit {
+class Digit extends GameObject {
   static final int NEGATIVE = 10;
   int digit;
   String shaderName;
@@ -426,9 +403,6 @@ class Digit {
   private PVector pixelOffset;
 
   public PImage[] sprites = new PImage[11];
-  public int baseColor = Colors.base;
-  public PVector position = new PVector();
-  public float scale = 1;
 
   Digit(int no, String shaderN) {
     for (int i = 0; i < 10; i++) {
@@ -663,12 +637,9 @@ static class KeyTime {
   static float time = 0;
   static int activeTimePoint;
 }
-class Number {
+class Number extends GameObject {
   public long number;
 
-  private float scale = 1;
-  private int baseColor = Colors.base;
-  private PVector position = new PVector();
   private int dsize;
   private Digit[] digits;
 
@@ -684,6 +655,9 @@ class Number {
 
   public float width() {
     return dsize * (digits[0].sprites[0].width + 1 * (1 / scale)) * Graphics.scale * scale;
+  }
+  public float height() {
+    return digits[0].sprites[0].height * Graphics.scale * scale;
   }
 
   public void position(float x, float y) {
@@ -718,6 +692,15 @@ class Number {
     scale = s;
     for (int i = 0; i < dsize; i++) {
       digits[i].scale = scale;
+      digits[i].position.x = position.x + (dsize - i - 1) * (digits[i].sprites[0].width + 1 * (1 / scale)) * Graphics.scale * scale;
+      digits[i].position.y = position.y;
+    }
+  }
+
+  public void translate(float x, float y) {
+    position.x += x;
+    position.y += y;
+    for (int i = 0; i < dsize; i++) {
       digits[i].position.x = position.x + (dsize - i - 1) * (digits[i].sprites[0].width + 1 * (1 / scale)) * Graphics.scale * scale;
       digits[i].position.y = position.y;
     }
