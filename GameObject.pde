@@ -58,10 +58,9 @@ public class GameObject {
     movement.y = y;
     movement.normalize();
   }
-  public PVector movement(PVector v) {
+  public void movement(PVector v) {
     v.normalize();
     movement = v;
-    return movement;
   }
 
   public PVector movement() {
@@ -69,10 +68,10 @@ public class GameObject {
   }
 
   public float width() {
-    return sprite.width * scale * Graphics.scale;
+    return (float)sprite.width * scale * Graphics.scale;
   }
   public float height() {
-    return sprite.height * scale * Graphics.scale;
+    return (float)sprite.height * scale * Graphics.scale;
   }
 
   public void move() {

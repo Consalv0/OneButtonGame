@@ -25,7 +25,7 @@ public class OneButtonGame extends PApplet {
 
 
 PostFX fx;
-GameObject obj, obj2;
+GameObject obj, obj2, obj3;
 TimeKey[] keys = new TimeKey[KeyTime.KEYSIZE];
 TimeBar keyTimeBar;
 Number number;
@@ -54,17 +54,23 @@ public void setup(){
     keys[i].position.y = height - keys[i].height() - keyTimeBar.height();
   }
   obj = new GameObject(ConstructedImages.player, "pixelPerfect.frag");
-  obj.scale = 1F;
-  obj.speed = 30;
+  obj.scale = 5F;
+  obj.speed = 15;
   obj.movement(1, 2);
-  obj.position(3, 10);
+  obj.position(1000, 200);
   obj.collider(true, true);
   obj2 = new GameObject(ConstructedImages.player, "pixelPerfect.frag");
-  obj2.scale = 1F;
+  obj2.scale = 3F;
   obj2.speed = 30;
   obj2.movement(3, 2);
-  obj2.position(100, 10);
+  obj2.position(900, 10);
   obj2.collider(true, true);
+  obj3 = new GameObject(ConstructedImages.player, "pixelPerfect.frag");
+  obj3.scale = 8F;
+  obj3.speed = 2;
+  obj3.movement(1, 1);
+  obj3.position(3, 500);
+  obj3.collider(true, true);
   number = new Number(10, "pixelPerfect.frag");
   number.scale(1);
   number.baseColor(Colors.highlight);
@@ -111,8 +117,13 @@ public void draw() {
   if ((obj2.collisions & CVERTICAL) > 0) { obj2.movement(-obj2.movement().x, obj2.movement().y); }
   if ((obj2.collisions & CHORIZONTAL) > 0) { obj2.movement(obj2.movement().x, -obj2.movement().y); }
 
+  if (obj3.collisions > 0) { Sounds.bounce.play(); tvPass.aberration = 0.3F; number.number = millis(); }
+  if ((obj3.collisions & CVERTICAL) > 0) { obj3.movement(-obj3.movement().x, obj3.movement().y); }
+  if ((obj3.collisions & CHORIZONTAL) > 0) { obj3.movement(obj3.movement().x, -obj3.movement().y); }
+
   obj.move();
   obj2.move();
+  obj3.move();
 
   if (mousePressed || keyPressed) {
     // tvPass.aberration = 0F;
@@ -129,9 +140,11 @@ public void draw() {
   keyTimeBar.draw();
   obj.draw();
   obj2.draw();
+  obj3.draw();
   number.position(width - 15 - number.width(), 20);
   number.draw();
 
+  resetShader();
   // I call the passes, all is declared in the class Graphics
   Graphics.watchScreen(g);
   Graphics.drawPostFX(g, fx, tvPass);
@@ -150,11 +163,13 @@ final int CVERTICAL = CLEFT | CRIGHT;
 ArrayList<GameObject> rectColliders = new ArrayList<GameObject>();
 
 public void checkCollisions() {
+  /* Clear Collisions */
   for (int i = 0; i < rectColliders.size(); i++) { rectColliders.get(i).collisions = 0; }
 
   float w, h, ow, oh;
   GameObject actual, other;
   int collisions = 0;
+
   for (int i = 0; i < rectColliders.size(); i++) {
     actual = rectColliders.get(i);
     w = actual.width();
@@ -173,10 +188,10 @@ public void checkCollisions() {
         actual.onBorderCollision(collisions);
       }
       /* Clamp Position (prevents multiple collisions) */
-      actual.position.x = actual.position.x + w >= width ? actual.position.x - Graphics.scale * actual.scale :
-        actual.position.x <= 0 ? actual.position.x + Graphics.scale * actual.scale : actual.position.x;
-      actual.position.y = actual.position.y + h >= height ? actual.position.y - Graphics.scale * actual.scale :
-        actual.position.y <= 0 ? actual.position.y + Graphics.scale * actual.scale : actual.position.y;
+      actual.position.x = actual.position.x + w >= width ? actual.position.x - Graphics.scale * actual.scale / 10 :
+        actual.position.x <= 0 ? actual.position.x + Graphics.scale * actual.scale / 10 : actual.position.x;
+      actual.position.y = actual.position.y + h >= height ? actual.position.y - Graphics.scale * actual.scale / 10 :
+        actual.position.y <= 0 ? actual.position.y + Graphics.scale * actual.scale / 10 : actual.position.y;
     }
 
     /* Other rects colliders collisions */
@@ -185,31 +200,31 @@ public void checkCollisions() {
       ow = other.width();
       oh = other.height();
 
-      if (actual.position.x < other.position.x + ow && actual.position.x > other.position.x - ow / 2) {
+      if (actual.position.x < other.position.x + ow && actual.position.x > other.position.x - ow / other.scale) {
         if (!(actual.position.y > other.position.y + oh || actual.position.y + h < other.position.y)) {
           other.collisions |= CRIGHT;
           actual.collisions |= CLEFT;
           actual.onCollision(other); other.onCollision(actual);
         }
       }
-      if (actual.position.x + w > other.position.x && actual.position.x + w < other.position.x + ow / 2) {
+      if (actual.position.x + w > other.position.x && actual.position.x + w < other.position.x + ow / other.scale) {
         if (!(actual.position.y > other.position.y + oh || actual.position.y + h < other.position.y)) {
           other.collisions |= CLEFT;
           actual.collisions |= CRIGHT;
           actual.onCollision(other); other.onCollision(actual);
         }
       }
-      if (actual.position.y < other.position.y + oh && actual.position.y > other.position.y - oh / 2) {
+      if (actual.position.y < other.position.y + oh && actual.position.y > other.position.y - oh / other.scale) {
         if (!(actual.position.x > other.position.x + ow || actual.position.x + w < other.position.x)) {
           other.collisions |= CTOP;
           actual.collisions |= CDOWN;
           actual.onCollision(other); other.onCollision(actual);
         }
       }
-      if (actual.position.y + h > other.position.y && actual.position.y + h < other.position.y + oh / 2) {
+      if (actual.position.y + h > other.position.y && actual.position.y + h < other.position.y + oh / other.scale) {
         if (!(actual.position.x > other.position.x + ow || actual.position.x + w < other.position.x)) {
-          other.collisions |= CTOP;
-          actual.collisions |= CDOWN;
+          other.collisions |= CDOWN;
+          actual.collisions |= CTOP;
           actual.onCollision(other); other.onCollision(actual);
         }
       }
@@ -498,10 +513,9 @@ public class GameObject {
     movement.y = y;
     movement.normalize();
   }
-  public PVector movement(PVector v) {
+  public void movement(PVector v) {
     v.normalize();
     movement = v;
-    return movement;
   }
 
   public PVector movement() {
@@ -509,10 +523,10 @@ public class GameObject {
   }
 
   public float width() {
-    return sprite.width * scale * Graphics.scale;
+    return (float)sprite.width * scale * Graphics.scale;
   }
   public float height() {
-    return sprite.height * scale * Graphics.scale;
+    return (float)sprite.height * scale * Graphics.scale;
   }
 
   public void move() {
@@ -868,7 +882,7 @@ public class TimeKey extends GameObject {
           sprite.width * Graphics.scale * scale, sprite.height * Graphics.scale * scale);
   }
 }
-  public void settings() {  size(800, 600, P2D);  noSmooth(); }
+  public void settings() {  size(1200, 800, P2D);  noSmooth(); }
   static public void main(String[] passedArgs) {
     String[] appletArgs = new String[] { "OneButtonGame" };
     if (passedArgs != null) {

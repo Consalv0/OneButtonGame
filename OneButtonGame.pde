@@ -4,7 +4,7 @@ import ch.bildspur.postfx.*;
 import processing.sound.*;
 
 PostFX fx;
-GameObject obj, obj2;
+GameObject obj, obj2, obj3;
 TimeKey[] keys = new TimeKey[KeyTime.KEYSIZE];
 TimeBar keyTimeBar;
 Number number;
@@ -12,7 +12,7 @@ TVPass tvPass;
 
 public void setup(){
   // fullScreen(P2D);
-  size(800, 600, P2D);
+  size(1200, 800, P2D);
   surface.setResizable(true);
   frameRate(1000);
   noSmooth();
@@ -33,17 +33,23 @@ public void setup(){
     keys[i].position.y = height - keys[i].height() - keyTimeBar.height();
   }
   obj = new GameObject(ConstructedImages.player, "pixelPerfect.frag");
-  obj.scale = 1F;
-  obj.speed = 30;
+  obj.scale = 5F;
+  obj.speed = 15;
   obj.movement(1, 2);
-  obj.position(3, 10);
+  obj.position(1000, 200);
   obj.collider(true, true);
   obj2 = new GameObject(ConstructedImages.player, "pixelPerfect.frag");
-  obj2.scale = 1F;
+  obj2.scale = 3F;
   obj2.speed = 30;
   obj2.movement(3, 2);
-  obj2.position(100, 10);
+  obj2.position(900, 10);
   obj2.collider(true, true);
+  obj3 = new GameObject(ConstructedImages.player, "pixelPerfect.frag");
+  obj3.scale = 8F;
+  obj3.speed = 2;
+  obj3.movement(1, 1);
+  obj3.position(3, 500);
+  obj3.collider(true, true);
   number = new Number(10, "pixelPerfect.frag");
   number.scale(1);
   number.baseColor(Colors.highlight);
@@ -90,8 +96,13 @@ public void draw() {
   if ((obj2.collisions & CVERTICAL) > 0) { obj2.movement(-obj2.movement().x, obj2.movement().y); }
   if ((obj2.collisions & CHORIZONTAL) > 0) { obj2.movement(obj2.movement().x, -obj2.movement().y); }
 
+  if (obj3.collisions > 0) { Sounds.bounce.play(); tvPass.aberration = 0.3F; number.number = millis(); }
+  if ((obj3.collisions & CVERTICAL) > 0) { obj3.movement(-obj3.movement().x, obj3.movement().y); }
+  if ((obj3.collisions & CHORIZONTAL) > 0) { obj3.movement(obj3.movement().x, -obj3.movement().y); }
+
   obj.move();
   obj2.move();
+  obj3.move();
 
   if (mousePressed || keyPressed) {
     // tvPass.aberration = 0F;
@@ -108,9 +119,11 @@ public void draw() {
   keyTimeBar.draw();
   obj.draw();
   obj2.draw();
+  obj3.draw();
   number.position(width - 15 - number.width(), 20);
   number.draw();
 
+  resetShader();
   // I call the passes, all is declared in the class Graphics
   Graphics.watchScreen(g);
   Graphics.drawPostFX(g, fx, tvPass);

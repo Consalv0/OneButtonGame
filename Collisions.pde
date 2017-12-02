@@ -9,11 +9,13 @@ final int CVERTICAL = CLEFT | CRIGHT;
 ArrayList<GameObject> rectColliders = new ArrayList<GameObject>();
 
 void checkCollisions() {
+  /* Clear Collisions */
   for (int i = 0; i < rectColliders.size(); i++) { rectColliders.get(i).collisions = 0; }
 
   float w, h, ow, oh;
   GameObject actual, other;
   int collisions = 0;
+
   for (int i = 0; i < rectColliders.size(); i++) {
     actual = rectColliders.get(i);
     w = actual.width();
@@ -32,10 +34,10 @@ void checkCollisions() {
         actual.onBorderCollision(collisions);
       }
       /* Clamp Position (prevents multiple collisions) */
-      actual.position.x = actual.position.x + w >= width ? actual.position.x - Graphics.scale * actual.scale :
-        actual.position.x <= 0 ? actual.position.x + Graphics.scale * actual.scale : actual.position.x;
-      actual.position.y = actual.position.y + h >= height ? actual.position.y - Graphics.scale * actual.scale :
-        actual.position.y <= 0 ? actual.position.y + Graphics.scale * actual.scale : actual.position.y;
+      actual.position.x = actual.position.x + w >= width ? actual.position.x - Graphics.scale * actual.scale / 10 :
+        actual.position.x <= 0 ? actual.position.x + Graphics.scale * actual.scale / 10 : actual.position.x;
+      actual.position.y = actual.position.y + h >= height ? actual.position.y - Graphics.scale * actual.scale / 10 :
+        actual.position.y <= 0 ? actual.position.y + Graphics.scale * actual.scale / 10 : actual.position.y;
     }
 
     /* Other rects colliders collisions */
@@ -44,31 +46,31 @@ void checkCollisions() {
       ow = other.width();
       oh = other.height();
 
-      if (actual.position.x < other.position.x + ow && actual.position.x > other.position.x - ow / 2) {
+      if (actual.position.x < other.position.x + ow && actual.position.x > other.position.x - ow / other.scale) {
         if (!(actual.position.y > other.position.y + oh || actual.position.y + h < other.position.y)) {
           other.collisions |= CRIGHT;
           actual.collisions |= CLEFT;
           actual.onCollision(other); other.onCollision(actual);
         }
       }
-      if (actual.position.x + w > other.position.x && actual.position.x + w < other.position.x + ow / 2) {
+      if (actual.position.x + w > other.position.x && actual.position.x + w < other.position.x + ow / other.scale) {
         if (!(actual.position.y > other.position.y + oh || actual.position.y + h < other.position.y)) {
           other.collisions |= CLEFT;
           actual.collisions |= CRIGHT;
           actual.onCollision(other); other.onCollision(actual);
         }
       }
-      if (actual.position.y < other.position.y + oh && actual.position.y > other.position.y - oh / 2) {
+      if (actual.position.y < other.position.y + oh && actual.position.y > other.position.y - oh / other.scale) {
         if (!(actual.position.x > other.position.x + ow || actual.position.x + w < other.position.x)) {
           other.collisions |= CTOP;
           actual.collisions |= CDOWN;
           actual.onCollision(other); other.onCollision(actual);
         }
       }
-      if (actual.position.y + h > other.position.y && actual.position.y + h < other.position.y + oh / 2) {
+      if (actual.position.y + h > other.position.y && actual.position.y + h < other.position.y + oh / other.scale) {
         if (!(actual.position.x > other.position.x + ow || actual.position.x + w < other.position.x)) {
-          other.collisions |= CTOP;
-          actual.collisions |= CDOWN;
+          other.collisions |= CDOWN;
+          actual.collisions |= CTOP;
           actual.onCollision(other); other.onCollision(actual);
         }
       }
