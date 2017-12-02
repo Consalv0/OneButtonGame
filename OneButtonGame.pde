@@ -33,19 +33,19 @@ public void setup(){
     keys[i].position.y = height - keys[i].height() - keyTimeBar.height();
   }
   obj = new GameObject(ConstructedImages.player, "pixelPerfect.frag");
-  obj.scale = 5F;
+  obj.scale = 2F;
   obj.speed = 15;
   obj.movement(1, 2);
   obj.position(1000, 200);
   obj.collider(true, true);
   obj2 = new GameObject(ConstructedImages.player, "pixelPerfect.frag");
   obj2.scale = 3F;
-  obj2.speed = 30;
+  obj2.speed = 10;
   obj2.movement(3, 2);
-  obj2.position(900, 10);
+  obj2.position(900, 300);
   obj2.collider(true, true);
   obj3 = new GameObject(ConstructedImages.player, "pixelPerfect.frag");
-  obj3.scale = 8F;
+  obj3.scale = 1F;
   obj3.speed = 2;
   obj3.movement(1, 1);
   obj3.position(3, 500);
@@ -78,6 +78,8 @@ public void draw() {
   text(Time.delta(), 10, 50);
   text(KeyTime.time, 10, 65);
   // stroke(blendColor(Colors.base, Colors.shadow, MULTIPLY));
+  line(width * 0.5F, 0, width * 0.5F, height);
+  line(0, height* 0.5, width, height* 0.5);
   // for (int i = 1; i < 20; i++) {
   //   line(0, i * height / 20, width, i * height / 20);
   //   line(i * width / 20, 0, i * width / 20, height);

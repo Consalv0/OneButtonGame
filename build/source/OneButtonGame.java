@@ -54,19 +54,19 @@ public void setup(){
     keys[i].position.y = height - keys[i].height() - keyTimeBar.height();
   }
   obj = new GameObject(ConstructedImages.player, "pixelPerfect.frag");
-  obj.scale = 5F;
+  obj.scale = 2F;
   obj.speed = 15;
   obj.movement(1, 2);
   obj.position(1000, 200);
   obj.collider(true, true);
   obj2 = new GameObject(ConstructedImages.player, "pixelPerfect.frag");
   obj2.scale = 3F;
-  obj2.speed = 30;
+  obj2.speed = 10;
   obj2.movement(3, 2);
-  obj2.position(900, 10);
+  obj2.position(900, 300);
   obj2.collider(true, true);
   obj3 = new GameObject(ConstructedImages.player, "pixelPerfect.frag");
-  obj3.scale = 8F;
+  obj3.scale = 1F;
   obj3.speed = 2;
   obj3.movement(1, 1);
   obj3.position(3, 500);
@@ -99,6 +99,8 @@ public void draw() {
   text(Time.delta(), 10, 50);
   text(KeyTime.time, 10, 65);
   // stroke(blendColor(Colors.base, Colors.shadow, MULTIPLY));
+  line(width * 0.5F, 0, width * 0.5F, height);
+  line(0, height* 0.5f, width, height* 0.5f);
   // for (int i = 1; i < 20; i++) {
   //   line(0, i * height / 20, width, i * height / 20);
   //   line(i * width / 20, 0, i * width / 20, height);
@@ -166,7 +168,7 @@ public void checkCollisions() {
   /* Clear Collisions */
   for (int i = 0; i < rectColliders.size(); i++) { rectColliders.get(i).collisions = 0; }
 
-  float w, h, ow, oh;
+  float w, h, ow, oh, dx, dy;
   GameObject actual, other;
   int collisions = 0;
 
@@ -194,40 +196,76 @@ public void checkCollisions() {
         actual.position.y <= 0 ? actual.position.y + Graphics.scale * actual.scale / 10 : actual.position.y;
     }
 
-    /* Other rects colliders collisions */
+    /* Other rects collisions */
     for (int j = i + 1; j < rectColliders.size(); j++) {
       other = rectColliders.get(j);
-      ow = other.width();
-      oh = other.height();
 
-      if (actual.position.x < other.position.x + ow && actual.position.x > other.position.x - ow / other.scale) {
-        if (!(actual.position.y > other.position.y + oh || actual.position.y + h < other.position.y)) {
-          other.collisions |= CRIGHT;
-          actual.collisions |= CLEFT;
-          actual.onCollision(other); other.onCollision(actual);
-        }
-      }
-      if (actual.position.x + w > other.position.x && actual.position.x + w < other.position.x + ow / other.scale) {
-        if (!(actual.position.y > other.position.y + oh || actual.position.y + h < other.position.y)) {
+      ow = (w + other.width()) * 0.5f;
+      oh = (h + other.height()) * 0.5f;
+      dx = (actual.position.x + w * 0.5f) - (other.position.x + other.width() * 0.5f);
+      dy = (actual.position.y + h * 0.5f) - (other.position.y + other.height() * 0.5f);
+
+      fill(0x6677CC88);
+      rectMode(CENTER);
+      rect(dx + width * 0.5f, dy + height * 0.5f, ow * 2, oh * 2);
+      rectMode(CORNER);
+
+      if (abs(dx) <= ow && abs(dy) <= oh) {
+        /* Collision! */
+        ow *= dy;
+        oh *= dx;
+
+        if (oh > ow) {
+          if (oh > -ow) {
+            /* Collision on the right */
+            other.collisions |= CRIGHT;
+            actual.collisions |= CLEFT;
+          } else {
+            /* at the top */
+            other.collisions |= CTOP;
+            actual.collisions |= CDOWN;
+          }
+        } else if (oh > -ow) {
+            /* at the bottom */
+            other.collisions |= CDOWN;
+            actual.collisions |= CTOP;
+        } else {
+          /* on the left */
           other.collisions |= CLEFT;
           actual.collisions |= CRIGHT;
-          actual.onCollision(other); other.onCollision(actual);
         }
       }
-      if (actual.position.y < other.position.y + oh && actual.position.y > other.position.y - oh / other.scale) {
-        if (!(actual.position.x > other.position.x + ow || actual.position.x + w < other.position.x)) {
-          other.collisions |= CTOP;
-          actual.collisions |= CDOWN;
-          actual.onCollision(other); other.onCollision(actual);
-        }
-      }
-      if (actual.position.y + h > other.position.y && actual.position.y + h < other.position.y + oh / other.scale) {
-        if (!(actual.position.x > other.position.x + ow || actual.position.x + w < other.position.x)) {
-          other.collisions |= CDOWN;
-          actual.collisions |= CTOP;
-          actual.onCollision(other); other.onCollision(actual);
-        }
-      }
+      // ow = other.width();
+      // oh = other.height();
+      //
+      // if (actual.position.x < other.position.x + ow && actual.position.x > other.position.x - ow / other.scale) {
+      //   if (!(actual.position.y > other.position.y + oh || actual.position.y + h < other.position.y)) {
+      //     other.collisions |= CRIGHT;
+      //     actual.collisions |= CLEFT;
+      //     actual.onCollision(other); other.onCollision(actual);
+      //   }
+      // }
+      // if (actual.position.x + w > other.position.x && actual.position.x + w < other.position.x + ow / other.scale) {
+      //   if (!(actual.position.y > other.position.y + oh || actual.position.y + h < other.position.y)) {
+      //     other.collisions |= CLEFT;
+      //     actual.collisions |= CRIGHT;
+      //     actual.onCollision(other); other.onCollision(actual);
+      //   }
+      // }
+      // if (actual.position.y < other.position.y + oh && actual.position.y > other.position.y - oh / other.scale) {
+      //   if (!(actual.position.x > other.position.x + ow || actual.position.x + w < other.position.x)) {
+      //     other.collisions |= CTOP;
+      //     actual.collisions |= CDOWN;
+      //     actual.onCollision(other); other.onCollision(actual);
+      //   }
+      // }
+      // if (actual.position.y + h > other.position.y && actual.position.y + h < other.position.y + oh / other.scale) {
+      //   if (!(actual.position.x > other.position.x + ow || actual.position.x + w < other.position.x)) {
+      //     other.collisions |= CDOWN;
+      //     actual.collisions |= CTOP;
+      //     actual.onCollision(other); other.onCollision(actual);
+      //   }
+      // }
     }
   }
 }
