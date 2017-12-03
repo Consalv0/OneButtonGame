@@ -1,4 +1,4 @@
-class Number extends GameObject {
+private class Number extends GameObject {
   public long number;
 
   private int dsize;

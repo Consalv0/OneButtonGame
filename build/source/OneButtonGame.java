@@ -65,9 +65,9 @@ public void setup(){
   obj2.movement(3, 2);
   obj2.position(900, 300);
   obj2.collider(true, true);
-  obj3 = new GameObject(ConstructedImages.player, "pixelPerfect.frag");
-  obj3.scale = 1F;
-  obj3.speed = 1;
+  obj3 = new Digit(0, "pixelPerfect.frag");
+  obj3.scale = 10F;
+  obj3.speed = 10;
   obj3.movement(1, 1);
   obj3.position(3, 500);
   obj3.collider(true, true);
@@ -114,19 +114,19 @@ public void draw() {
   // if (Time.getTimer("Second") <= 0)
   checkCollisions();
 
-  if (obj.collisions > 0) { Sounds.bounce.play(); tvPass.aberration = 0.3F; }
+  if (obj.collisions > 0) { /* Sounds.bounce.play(); */ tvPass.aberration = 0.3F; }
   if ((obj.collisions & CNOLATERAL) > 0) { obj.movement(-obj.movement().x, obj.movement().y); }
   if ((obj.collisions & CLATERAL) > 0) { obj.movement(obj.movement().x, -obj.movement().y); }
 
-  if (obj2.collisions > 0) { Sounds.bounce.play(); tvPass.aberration = 0.3F; }
+  if (obj2.collisions > 0) { /* Sounds.bounce.play(); */ tvPass.aberration = 0.3F; }
   if ((obj2.collisions & CNOLATERAL) > 0) { obj2.movement(-obj2.movement().x, obj2.movement().y); }
   if ((obj2.collisions & CLATERAL) > 0) { obj2.movement(obj2.movement().x, -obj2.movement().y); }
 
-  if (obj3.collisions > 0) { Sounds.bounce.play(); tvPass.aberration = 0.3F; }
+  if (obj3.collisions > 0) { /* Sounds.bounce.play(); */ tvPass.aberration = 0.3F; ((Digit)obj3).digit = (((Digit)obj3).digit + 1) % 10; }
   if ((obj3.collisions & CNOLATERAL) > 0) { obj3.movement(-obj3.movement().x, obj3.movement().y); }
   if ((obj3.collisions & CLATERAL) > 0) { obj3.movement(obj3.movement().x, -obj3.movement().y); }
 
-  if (number.collisions > 0) { Sounds.bounce.play(); tvPass.aberration = 0.3F; number.number = millis(); }
+  if (number.collisions > 0) { /* Sounds.bounce.play(); */ tvPass.aberration = 0.3F; number.number = millis(); }
   if ((number.collisions & CNOLATERAL) > 0) { number.movement(-number.movement().x, number.movement().y); }
   if ((number.collisions & CLATERAL) > 0) { number.movement(number.movement().x, -number.movement().y); }
 
@@ -204,7 +204,7 @@ public void checkCollisions() {
         actual.position.y <= 0 ? actual.position.y + Graphics.scale * actual.scale / 10 : actual.position.y;
     }
 
-    /* Other rects collisions */
+    /* Other rects collisions using https://en.wikipedia.org/wiki/Minkowski_addition */
     for (int j = i + 1; j < rectColliders.size(); j++) {
       other = rectColliders.get(j);
 
@@ -409,6 +409,7 @@ class Digit extends GameObject {
       sprites[i] = makePImage(digitImage(i));
     }
     sprites[NEGATIVE] = makePImage(digitImage(NEGATIVE));
+    sprite = sprites[0];
     shader = Graphics.getShader(shaderN);
     shaderName = shaderN;
     digit = no < 0 ? 0 : no > 10 ? 9 : no;
@@ -637,7 +638,7 @@ static class KeyTime {
   static float time = 0;
   static int activeTimePoint;
 }
-class Number extends GameObject {
+private class Number extends GameObject {
   public long number;
 
   private int dsize;

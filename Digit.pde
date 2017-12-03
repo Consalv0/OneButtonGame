@@ -13,6 +13,7 @@ class Digit extends GameObject {
       sprites[i] = makePImage(digitImage(i));
     }
     sprites[NEGATIVE] = makePImage(digitImage(NEGATIVE));
+    sprite = sprites[0];
     shader = Graphics.getShader(shaderN);
     shaderName = shaderN;
     digit = no < 0 ? 0 : no > 10 ? 9 : no;

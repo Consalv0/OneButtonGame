@@ -3,12 +3,8 @@ precision mediump float;
 precision mediump int;
 #endif
 
-uniform sampler2D texture;
 uniform float barrelD;
 uniform float aberration;
-
-varying vec4 vertColor;
-varying vec4 vertTexCoord;
 
 const int NUMITER = 9;
 const float RECINUMITERF = 1.0 / float(NUMITER);
@@ -55,9 +51,9 @@ vec2 distort(vec2 p) {
   return 0.5 * (p + 1.0);
 }
 
-void main() {
+vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) {
 
-  vec2 xy = 0.8 * vertTexCoord.xy - 0.4;
+  vec2 xy = 0.8 * texture_coords.xy - 0.4;
 
   vec4 sumcol = vec4(0.0);
   vec4 sumw = vec4(0.0);
@@ -68,15 +64,8 @@ void main() {
   	float t = float(i) * RECINUMITERF;
   	vec4 w = spectrum_offset( t );
   	sumw += w;
-  	sumcol += w * texture(texture, barrelDistort(xy, aberration * t) + bD);
+  	sumcol += w * Texel(texture, barrelDistort(xy, aberration * t) + bD);
   }
 
-  gl_FragColor = sumcol / sumw;
-
-  // float d = length(xy);
-  // if (d < barrelD - 0.1) {
-    // gl_FragColor = texture(texture, distort(xy));
-  // } else {
-  //   gl_FragColor = texture(texture, vertTexCoord.xy) - vec4(0.3);
-  // }
+  return sumcol / sumw;
 }
