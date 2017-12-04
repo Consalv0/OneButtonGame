@@ -3,7 +3,7 @@ precision mediump float;
 precision mediump int;
 #endif
 
-uniform float barrelD;
+uniform float distorsion;
 uniform float aberration;
 
 const int NUMITER = 9;
@@ -45,7 +45,7 @@ vec4 spectrum_offset(float t) {
 vec2 distort(vec2 p) {
   float theta  = atan(p.y, p.x);
   float radius = sqrt(pow(p.x, 2.0) + pow(p.y, 2.0));
-  radius = pow(radius, barrelD);
+  radius = pow(radius, distorsion);
   p.x = radius * cos(theta);
   p.y = radius * sin(theta);
   return 0.5 * (p + 1.0);
