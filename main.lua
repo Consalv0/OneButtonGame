@@ -1,7 +1,7 @@
 require "Sprites"
 require "GameObject"
 
--- Bitwise operations --
+-- Needed for bitwise operations --
 local bit = require("bit")
 
 function love.load()
@@ -9,7 +9,7 @@ function love.load()
   love.window.setMode(1000, 800, { resizable=true, vsync=false, minwidth=400, minheight=400 })
   love.window.setTitle("One <Button> Game")
 
-  -- Default filters --
+  -- Default filters for canvases --
   love.graphics.setDefaultFilter('nearest', 'nearest', 0)
   love.graphics.setLineWidth(2)
 
@@ -21,8 +21,10 @@ function love.load()
   -- PostFX shaders --
   myShader = love.graphics.newShader("CRT.frag")
 
-  -- Test variables --
+  -- Sprite variables --
   sprites = Sprites:new(SpritesData)
+
+  -- Test variables --
   -- love.errhand("Hola")
   obj = GameObject:new(testImg, 10)
 end
@@ -50,6 +52,7 @@ function love.draw()
   love.graphics.setColor(255, 255, 255, 255)
   love.graphics.print(obj.collisions)
   love.graphics.draw(sprites['digits'][9], love.mouse.getX(), love.mouse.getY(), 0, obj:dimensions())
+  -- TV Frame --
   love.graphics.setColor(17, 17, 17, 255)
   love.graphics.line(0, love.graphics.getHeight() - 1, love.graphics.getWidth(), love.graphics.getHeight() - 1);
   love.graphics.line(0, 0, 0, love.graphics.getHeight() - 1);
