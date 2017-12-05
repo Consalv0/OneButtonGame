@@ -22,8 +22,8 @@ end
 function isData(t)
   for key, value in pairs(t) do
     if type(value) == 'table' then
-      if type(key) ~= 'number' then return false end
-      for ikey, ivalue in pairs(value) do
+      if type(key) ~= 'number' then return false end -- Is not number, no useful
+      for ikey, ivalue in pairs(value) do -- Check if second dimension is table
         if (type(ivalue) == 'table') then return false end
       end
     else
@@ -34,34 +34,29 @@ function isData(t)
 end
 
 function createSprites(sData, sprites)
-  sprites = sData
+  sprites = sData -- Copy initial data
   for key, value in pairs(sData) do
     if type(value) == 'table' then
-      if isData(value) then
+      if isData(value) then -- Check if the next two dimensions are numbers
         sprites[key] = createSprite(sprites[key])
       else
-        createSprites(value, sprites)
-      end
-      for k, v in pairs(value) do
-        print(key, k, v)
+        createSprites(value, sprites) -- Recursivity inside the inner value
       end
     else
-      sprites[key] = nil
+      sprites[key] = nil -- Value is no useful
     end
   end
   return sprites
 end
-
 
 function createSprite(data)
   sprite = love.image.newImageData(#data[1], #data)
   temp = 0;
   for i=0, #data[1] -1 do  -- remember: start at 0 not 1
     for j=0, #data -1 do
-      temp = data[j+1][i+1] / 9
+      temp = data[j+1][i+1] / 9 -- 0 is transparent, 1-9 -> black-white
       sprite:setPixel(i, j, temp * 255, temp * 255, temp * 255, temp == 0 and 0 or 255)
     end
   end
-  img = love.graphics.newImage(sprite)
-  return img
+  return love.graphics.newImage(sprite)
 end
