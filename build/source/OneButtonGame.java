@@ -100,7 +100,7 @@ public void draw() {
   text(width + "x" + height, 10, 20);
   text(frameRate, 8, 35);
   text(Time.delta(), 10, 50);
-  text(17 & 1, 10, 65);
+  text(KeyTime.time, 10, 65);
   // stroke(blendColor(Colors.base, Colors.shadow, MULTIPLY));
   line(width * 0.5F, 0, width * 0.5F, height);
   line(0, height* 0.5f, width, height* 0.5f);

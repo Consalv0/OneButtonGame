@@ -1,31 +1,38 @@
-require "SpritesData"
-require "SpriteConstructor"
+require "Sprites"
+require "GameObject"
+
+-- Bitwise operations --
 local bit = require("bit")
 
--- Load some default values for our rectangle.
 function love.load()
-  love.window.setMode(800, 600, { resizable=true, vsync=false, minwidth=400, minheight=400 })
+  -- Default Values for the screen --
+  love.window.setMode(1000, 800, { resizable=true, vsync=false, minwidth=400, minheight=400 })
   love.window.setTitle("One <Button> Game")
 
+  -- Default filters --
   love.graphics.setDefaultFilter('nearest', 'nearest', 0)
   love.graphics.setLineWidth(2)
 
-  canvas = love.graphics.newCanvas(800, 600, "rgba8", 0)
+  -- Game canvas initializer --
+  canvas = love.graphics.newCanvas(love.graphics.getWidth(), love.graphics.getHeight(), "rgba8", 0)
   love.graphics.setCanvas(canvas)
-  love.graphics.setDefaultFilter('nearest', 'nearest', 0)
   love.graphics.setBlendMode('alpha', 'alphamultiply')
 
+  -- PostFX shaders --
   myShader = love.graphics.newShader("CRT.frag")
 
-  testImg = createSprite(SpritesData['digits'][9])
+  -- Test variables --
+  sprites = Sprites:new(SpritesData)
+  -- love.errhand("Hola")
+  obj = GameObject:new(testImg, 10)
 end
 
--- Update is called
+-- Update is called here
 function love.update(deltaTime)
 
 end
 
--- Draw a coloured rectangle.
+-- Draw all you need here.
 function love.draw()
   love.graphics.setCanvas(canvas)
   love.graphics.clear()
@@ -41,7 +48,8 @@ function love.draw()
   love.graphics.setColor(17, 17, 17, 255)
   -- love.graphics.print(bit.band(18, 2))
   love.graphics.setColor(255, 255, 255, 255)
-  love.graphics.draw(testImg, love.mouse.getX(), love.mouse.getY(), 0, 10, 10)
+  love.graphics.print(obj.collisions)
+  love.graphics.draw(sprites['digits'][9], love.mouse.getX(), love.mouse.getY(), 0, obj:dimensions())
   love.graphics.setColor(17, 17, 17, 255)
   love.graphics.line(0, love.graphics.getHeight() - 1, love.graphics.getWidth(), love.graphics.getHeight() - 1);
   love.graphics.line(0, 0, 0, love.graphics.getHeight() - 1);
@@ -49,10 +57,15 @@ function love.draw()
   love.graphics.line(0, 0, love.graphics.getWidth() - 1, 0);
   love.graphics.setCanvas()
 
-  -- PostFX section
-  myShader:send("aberration", 0.3)
+  -- PostFX Section --
+  myShader:send("aberration", 0.1)
   myShader:send("distorsion", 1.4)
   love.graphics.setShader(myShader)
   love.graphics.draw(canvas)
   love.graphics.setShader()
+end
+
+-- On window resize --
+function love.resize(w, h)
+  canvas = love.graphics.newCanvas(w, h, "rgba8", 0)
 end
