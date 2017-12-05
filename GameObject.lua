@@ -1,25 +1,29 @@
+require "Math"
+
 GameObject = {
   -- Draw Variables --
   sprite = love.graphics.newImage(love.image.newImageData(1, 1)),
   localScale = scale or 1,
   baseColor = {0, 0, 0, 0},
-  -- Pysics Variables --
+  -- Physics Variables --
   collisions = 0,
   rigidBody = nil,
-  position = {0, 0},
-  velocity = {0, 0}
+  posX = 0,
+  posY = 0,
+  velX = 0,
+  velY = 0
 }
 
 -- Constrcutors --
 function GameObject:new(obj)
-  obj = obj or {}
+  local obj = obj or {}
   setmetatable(obj, self)
   self.__index = self
   return obj
 end
 
 function GameObject:new(sprite, scale)
-  obj = {}
+  local obj = {}
   setmetatable(obj, self)
   self.__index = self
   obj.sprite = sprite
@@ -36,4 +40,35 @@ function GameObject:width()
 end
 function GameObject:height()
   return self.sprite:getHeight() * self.scale
+end
+
+function GameObject:getPosition()
+  return self.posX, self.posY
+end
+function GameObject:setPosition(x, y)
+  self.posX = x
+  self.posY = y
+end
+
+function GameObject:getVelocity()
+  return self.velX, self.velY
+end
+function GameObject:setVelocity(x, y, vel)
+  if vel ~= nil then
+    x, y = math.normalize(x, y)
+    x = x * vel
+    y = y * vel
+  end
+  self.velX = x
+  self.velY = y
+end
+
+function GameObject:update(dt)
+  dt = dt * 10
+  self.posX = self.posX + self.velX * dt
+  self.posY = self.posY + self.velY * dt
+end
+
+function GameObject:draw()
+  love.graphics.draw(self.sprite, self.posX, self.posY, 0, self.scale, self.scale)
 end

@@ -3,7 +3,7 @@ require "SpritesData"
 Sprites = {}
 
 function Sprites:new(data)
-  obj = {}
+  local obj = {}
   setmetatable(obj, self)
   self.__index = self
   obj = createSprites(data)
@@ -50,8 +50,8 @@ function createSprites(sData, sprites)
 end
 
 function createSprite(data)
-  sprite = love.image.newImageData(#data[1], #data)
-  temp = 0;
+  local sprite = love.image.newImageData(#data[1], #data)
+  local temp = 0;
   for i=0, #data[1] -1 do  -- remember: start at 0 not 1
     for j=0, #data -1 do
       temp = data[j+1][i+1] / 9 -- 0 is transparent, 1-9 -> black-white
