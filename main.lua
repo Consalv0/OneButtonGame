@@ -1,5 +1,5 @@
 require "Sprites"
-require "GameObject"
+require "Digit"
 
 -- Needed for bitwise operations --
 local bit = require("bit")
@@ -28,9 +28,9 @@ function love.load()
   sprites = Sprites:new(SpritesData)
 
   -- Test variables --
-  -- love.errhand("Hola")
-  obj = GameObject:new(sprites['digits'][0], 2.4 * 2)
+  obj = Digit:new(sprites.digits, 2.4 * 2, 2)
   obj:setVelocity(10, 5)
+  obj.color = {161, 201, 104, 255}
 end
 
 -- Update is called here

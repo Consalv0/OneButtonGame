@@ -3,8 +3,8 @@ require "Math"
 GameObject = {
   -- Draw Variables --
   sprite = love.graphics.newImage(love.image.newImageData(1, 1)),
-  localScale = scale or 1,
-  baseColor = {0, 0, 0, 0},
+  scale = scale or 1,
+  color = {0, 0, 0, 0},
   -- Physics Variables --
   collisions = 0,
   rigidBody = nil,
@@ -69,6 +69,16 @@ function GameObject:update(dt)
   self.posY = self.posY + self.velY * dt
 end
 
+function GameObject:onCollisionEnter(other, sides)
+
+end
+
+function GameObject:onCollisionExit(other, sides)
+
+end
+
 function GameObject:draw()
-  love.graphics.draw(self.sprite, self.posX, self.posY, 0, self.scale, self.scale)
+  love.graphics.setColor(self.color)
+  love.graphics.draw(self.sprite, math.floor(self.posX / 6.62) * 6.62, self.posY, 0, self.scale, self.scale)
+  love.graphics.setColor(255, 255, 255, 255)
 end
