@@ -34,6 +34,7 @@ function love.load()
   obj.color = {161, 201, 104, 255}
 
   number = Number:init(10, obj, sprites.characters['-'])
+  number.number = -10000
   number.scale = 10
 end
 
@@ -41,7 +42,7 @@ end
 function love.update(deltaTime)
   obj:addDigit(0.001)
   obj:update(deltaTime)
-  number.number = deltaTime * 10000
+  number.number = number.number + 1
   number:setPosition(love.mouse.getX(), love.mouse.getY());
   number:update(deltaTime)
 end

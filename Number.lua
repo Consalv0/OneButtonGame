@@ -40,6 +40,7 @@ function Number:update(dt)
   for i = 1, #self.digits do
     self.digits[i]:setDigit(getDigitAtPos(self.number, i - 1))
   end
+  if self.number < 0 then self.digits[#self.digits]:setValue('-') end
 end
 
 function Number:draw()
