@@ -1,5 +1,6 @@
 require "Sprites"
-require "Digit"
+require "Object"
+require "Number"
 
 -- Needed for bitwise operations --
 local bit = require("bit")
@@ -25,17 +26,24 @@ function love.load()
   crtShader = love.graphics.newShader("CRT.frag")
 
   -- Sprite variables --
-  sprites = Sprites:new(SpritesData)
+  sprites = Sprites:init(SpritesData)
 
   -- Test variables --
-  obj = Digit:new(sprites.digits, 2.4 * 2, 2)
+  obj = Character:init(sprites.characters, 2.4 * 2, 2)
   obj:setVelocity(10, 5)
   obj.color = {161, 201, 104, 255}
+
+  number = Number:init(10, obj, sprites.characters['-'])
+  number.scale = 10
 end
 
 -- Update is called here
 function love.update(deltaTime)
+  obj:addDigit(0.001)
   obj:update(deltaTime)
+  number.number = deltaTime * 10000
+  number:setPosition(love.mouse.getX(), love.mouse.getY());
+  number:update(deltaTime)
 end
 
 -- Draw all you need here.
@@ -53,7 +61,10 @@ function love.draw()
   -- love.graphics.print(bit.band(18, 2))
   love.graphics.setColor(194, 188, 163, 255)
   love.graphics.print(obj.collisions)
+  number:draw()
   obj:draw()
+
+  -- PostFX Section --
   -- TV Frame --
   love.graphics.setColor(29, 29, 29, 255)
   love.graphics.line(0, height - 1, width, height - 1);
@@ -62,7 +73,6 @@ function love.draw()
   love.graphics.line(0, 0, width - 1, 0);
   love.graphics.setCanvas()
 
-  -- PostFX Section --
   crtShader:send("aberration", 0.1)
   crtShader:send("distorsion", 1.4)
   love.graphics.setShader(crtShader)

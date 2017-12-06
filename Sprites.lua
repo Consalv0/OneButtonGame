@@ -2,7 +2,7 @@ require "SpritesData"
 
 Sprites = {}
 
-function Sprites:new(data)
+function Sprites:init(data)
   local obj = {}
   setmetatable(obj, self)
   self.__index = self

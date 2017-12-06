@@ -1,4 +1,5 @@
 require "Math"
+local Object = require "Object"
 
 GameObject = {
   -- Draw Variables --
@@ -14,15 +15,10 @@ GameObject = {
   velY = 0
 }
 
--- Constrcutors --
-function GameObject:new(obj)
-  local obj = obj or {}
-  setmetatable(obj, self)
-  self.__index = self
-  return obj
-end
+GameObject = Object:extend("GameObject", GameObject)
 
-function GameObject:new(sprite, scale)
+-- Constrcutor --
+function GameObject:init(sprite, scale)
   local obj = {}
   setmetatable(obj, self)
   self.__index = self
@@ -31,14 +27,14 @@ function GameObject:new(sprite, scale)
   return obj
 end
 
-function GameObject:dimensions()
+function GameObject:getDimensions()
   return self.sprite:getWidth() * self.scale,
          self.sprite:getHeight() * self.scale
 end
-function GameObject:width()
+function GameObject:getWidth()
   return self.sprite:getWidth() * self.scale
 end
-function GameObject:height()
+function GameObject:getHeight()
   return self.sprite:getHeight() * self.scale
 end
 
@@ -64,6 +60,7 @@ function GameObject:setVelocity(x, y, vel)
 end
 
 function GameObject:update(dt)
+  -- Movement --
   dt = dt * 10
   self.posX = self.posX + self.velX * dt
   self.posY = self.posY + self.velY * dt
@@ -79,6 +76,7 @@ end
 
 function GameObject:draw()
   love.graphics.setColor(self.color)
-  love.graphics.draw(self.sprite, math.floor(self.posX / 6.62) * 6.62, self.posY, 0, self.scale, self.scale)
+  love.graphics.draw(self.sprite, math.floor(self.posX / 6.62) * 6.62,
+    math.floor(self.posY/ 6.62) * 6.62, 0, self.scale, self.scale)
   love.graphics.setColor(255, 255, 255, 255)
 end
