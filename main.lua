@@ -1,7 +1,8 @@
-require "Sprites"
-require "Object"
+require "SpritesData"
 require "Number"
 
+-- Load Sprite Library --
+local Sprite = require("Sprite")
 -- Needed for bitwise operations --
 local bit = require("bit")
 
@@ -26,7 +27,7 @@ function love.load()
   crtShader = love.graphics.newShader("CRT.frag")
 
   -- Sprite variables --
-  sprites = Sprites:init(SpritesData)
+  sprites = Sprite:init(SpritesData)
 
   -- Test variables --
   obj = Character:init(sprites.characters, 2.4 * 2, 2)

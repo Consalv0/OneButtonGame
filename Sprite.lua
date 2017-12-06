@@ -1,16 +1,16 @@
-require "SpritesData"
+local Object = require "Object"
 
-Sprites = {}
+local Sprite = {}
 
-function Sprites:init(data)
+function Sprite:init(data)
   local obj = {}
   setmetatable(obj, self)
   self.__index = self
-  obj = createSprites(data)
+  obj = Sprite.dataToSprites(Object.copy(data))
   return obj
 end
 
-function Sprites:addSprite(name, data, category)
+function Sprite:addSprite(name, data, category)
   if category ~= nil then
     self[category] = self[category] or {}
     self[category][name] = createSprite(data)
@@ -19,7 +19,7 @@ function Sprites:addSprite(name, data, category)
   end
 end
 
-function isData(t)
+function Sprite.isData(t)
   for key, value in pairs(t) do
     if type(value) == 'table' then
       if type(key) ~= 'number' then return false end -- Is not number, no useful
@@ -33,23 +33,8 @@ function isData(t)
   return true
 end
 
-function createSprites(sData, sprites)
-  sprites = sData -- Copy initial data
-  for key, value in pairs(sData) do
-    if type(value) == 'table' then
-      if isData(value) then -- Check if the next two dimensions are numbers
-        sprites[key] = createSprite(sprites[key])
-      else
-        createSprites(value, sprites) -- Recursivity inside the inner value
-      end
-    else
-      sprites[key] = nil -- Value is no useful
-    end
-  end
-  return sprites
-end
-
-function createSprite(data)
+function Sprite.createSprite(data)
+  if data == nil then return data end
   local sprite = love.image.newImageData(#data[1], #data)
   local temp = 0;
   for i=0, #data[1] -1 do  -- remember: start at 0 not 1
@@ -60,3 +45,21 @@ function createSprite(data)
   end
   return love.graphics.newImage(sprite)
 end
+
+function Sprite.dataToSprites(sData)
+  sData = sData -- Copy initial data
+  for key, value in pairs(sData) do
+    if type(value) == 'table' then
+      if Sprite.isData(value) then -- Check if the next two dimensions are numbers
+        sData[key] = Sprite.createSprite(sData[key])
+      else
+        Sprite.dataToSprites(value, sData) -- Recursivity inside the inner value
+      end
+    else
+      sData[key] = nil -- Value is no useful
+    end
+  end
+  return sData
+end
+
+return Sprite
