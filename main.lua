@@ -1,6 +1,10 @@
 require "SpritesData"
 require "Number"
 
+-- Physiscs Sytem --
+local Physics = require("Physics")
+-- Load Colors --
+local Colors = require("Colors")
 -- Load Sprite Library --
 local Sprite = require("Sprite")
 -- Needed for bitwise operations --
@@ -8,12 +12,12 @@ local bit = require("bit")
 
 function love.load()
   -- Default Values --
-  love.window.setMode(1000, 800, { resizable=true, vsync=false, minwidth=400, minheight=400, fullscreentype='exclusive' })
+  love.window.setMode(9 * 60, 16 * 60, { resizable=true, vsync=false, minwidth=400, minheight=400, fullscreentype='exclusive' })
   love.window.setTitle("One <Button> Game")
 
   love.graphics.setDefaultFilter('nearest', 'nearest', 0)
   love.graphics.setLineWidth(2)
-  love.mouse.setVisible(false)
+  -- love.mouse.setVisible(false)
 
   width = love.graphics.getWidth()
   height = love.graphics.getHeight()
@@ -30,21 +34,27 @@ function love.load()
   sprites = Sprite:init(SpritesData)
 
   -- Test variables --
-  obj = Character:init(sprites.characters, 2.4 * 2, 2)
-  obj:setVelocity(10, 5)
-  obj.color = {161, 201, 104, 255}
+  digit = Character:init(sprites.characters, 2.4 * 1.5, 2)
+  digit:setVelocity(80, 100)
+  digit.posX = width / 2
+  digit.posY = height / 2
+  digit.color = {161, 201, 104, 255}
+  digit.rigidBody = bit.bor(Physics.BORDERS, Physics.DYNAMIC)
+  Physics.rectColliders[1] = digit
 
-  number = Number:init(10, obj, sprites.characters['-'])
+  number = Number:init(5, digit, sprites.characters['-'])
   number.number = -10000
-  number.scale = 10
+  number.scale = 3
+  number.rigidBody = Physics.STATIC
+  Physics.rectColliders[2] = number
 end
 
 -- Update is called here
 function love.update(deltaTime)
-  obj:addDigit(0.001)
-  obj:update(deltaTime)
-  number.number = number.number + 1
-  number:setPosition(love.mouse.getX(), love.mouse.getY());
+  Physics:rectCollisions(deltaTime)
+  digit:update(deltaTime)
+  number.number = number.collisions
+  number:setPosition(love.mouse.getX() - number:getWidth() / 2, love.mouse.getY() - number:getHeight() / 2);
   number:update(deltaTime)
 end
 
@@ -54,17 +64,16 @@ function love.draw()
   love.graphics.clear()
 
   love.graphics.setBackgroundColor(35, 35, 35, 255)
-
-  love.graphics.setColor(35, 35, 35, 255)
+  love.graphics.setColor({35, 35, 35, 255})
   love.graphics.rectangle('fill', 0, 0, width, height)
 
   love.graphics.setColor(29, 29, 29, 255)
   -- love.graphics.rectangle('fill', love.mouse.getX(), love.mouse.getY(), 100, 100)
   -- love.graphics.print(bit.band(18, 2))
   love.graphics.setColor(194, 188, 163, 255)
-  love.graphics.print(obj.collisions)
+  love.graphics.print(digit.collisions)
   number:draw()
-  obj:draw()
+  digit:draw()
 
   -- PostFX Section --
   -- TV Frame --

@@ -1,5 +1,6 @@
 require "Math"
 local Object = require "Object"
+local Physics = require "Physics"
 
 GameObject = {
   -- Draw Variables --
@@ -8,11 +9,10 @@ GameObject = {
   color = {0, 0, 0, 0},
   -- Physics Variables --
   collisions = 0,
-  rigidBody = nil,
-  posX = 0,
-  posY = 0,
-  velX = 0,
-  velY = 0
+  rigidBody = Physics.NONE,
+
+  posX = 0, posY = 0,
+  velX = 0, velY = 0
 }
 
 GameObject = Object:extend("GameObject", GameObject)
@@ -66,8 +66,18 @@ function GameObject:update(dt)
   self.posY = self.posY + self.velY * dt
 end
 
-function GameObject:onCollisionEnter(other, sides)
+function GameObject:onCollisionStay(other, sides)
+  if (bit.band(sides, Physics.CLEFT  ) > 0) then self.velX = math.abs(self.velX) end
+  if (bit.band(sides, Physics.CRIGHT ) > 0) then self.velX = -math.abs(self.velX) end
+  if (bit.band(sides, Physics.CTOP   ) > 0) then self.velY = math.abs(self.velY) end
+  if (bit.band(sides, Physics.CBOTTOM) > 0) then self.velY = -math.abs(self.velY) end
 
+  if bit.band(self.rigidBody, Physics.DYNAMIC) > 0 and other and other.posX then
+    self.posX = self.posX + (bit.band(sides, Physics.CRIGHT  ) > 0 and -self.posX - self:getWidth() + other.posX or
+      bit.band(sides, Physics.CLEFT ) > 0 and -self.posX + other.posX + other:getWidth() or 0)
+    self.posY = self.posY + (bit.band(sides, Physics.CBOTTOM) > 0 and -self.posY - self:getHeight() + other.posY or
+      bit.band(sides, Physics.CBOTTOM) > 0 and -self.posY + other.posY + other:getHeight() or 0)
+  end
 end
 
 function GameObject:onCollisionExit(other, sides)

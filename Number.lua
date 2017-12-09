@@ -21,6 +21,13 @@ function Number:init(length, base, negativeSymbol)
   return inst
 end
 
+function Number:getHeight()
+  return self.digits[1].sprite:getHeight() * self.scale
+end
+function Number:getWidth()
+  return (self.digits[1].sprite:getWidth() * self.scale + self.scale) * #self.digits
+end
+
 local function getDigitAtPos(num, index)
   num = math.abs(num);
   if index > 0 then
