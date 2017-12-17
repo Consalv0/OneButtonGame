@@ -13,12 +13,22 @@ Physics = {
 
   -- RigidBody States --
   NONE = 0,
-  STATIC = 1,
-  BORDERS = 2,
+  BORDERS = 1,
+  STATIC = 2,
   DYNAMIC = 4,
 
   rectColliders = {}
 }
+
+function Physics.addRect(element)
+  table.insert(Physics.rectColliders, element)
+  element.physicsIndex = #Physics.rectColliders
+end
+function Physics.removeRect(element)
+  if element.physicsIndex == nil then return end
+  table.remove(Physics.rectColliders, element.physicsIndex)
+  element.physicsIndex = nil
+end
 
 function Physics.rectCollisions(deltaTime)
   if #Physics.rectColliders == 0 then return 0 end

@@ -367,9 +367,9 @@ static class ConstructedImages {
   }
 
   static final int[][] timerLine_ON =
-  {{1, 1, 1, 1, 1},
-   {1, 1, 1, 1, 1},
-   {1, 1, 1, 1, 1}};
+   {{1, 1, 1, 1, 1},
+    {1, 1, 1, 1, 1},
+    {1, 1, 1, 1, 1}};
 
   static final int[][] timerLine_OFF =
    {{4, 4, 4, 4, 4},
@@ -377,22 +377,22 @@ static class ConstructedImages {
     {4, 4, 4, 4, 4}};
 
   static final int[][] player =
-  {{0, 4, 0, 4, 0},
-   {4, 1, 1, 1, 4},
-   {4, 1, 4, 1, 4},
-   {0, 4, 0, 4, 0}};
+   {{0, 4, 0, 4, 0},
+    {4, 1, 1, 1, 4},
+    {4, 1, 4, 1, 4},
+    {0, 4, 0, 4, 0}};
 
   static final int[][] downarrow_ON =
-  {{1, 1, 1, 1, 1},
-   {1, 1, 1, 1, 1},
-   {0, 1, 1, 1, 0},
-   {0, 0, 1, 0, 0}};
+   {{1, 1, 1, 1, 1},
+    {1, 1, 1, 1, 1},
+    {0, 1, 1, 1, 0},
+    {0, 0, 1, 0, 0}};
 
   static final int[][] downarrow_OFF =
-  {{5, 5, 5, 5, 5},
-   {5, 5, 5, 5, 5},
-   {0, 5, 5, 5, 0},
-   {0, 0, 5, 0, 0}};
+   {{5, 5, 5, 5, 5},
+    {5, 5, 5, 5, 5},
+    {0, 5, 5, 5, 0},
+    {0, 0, 5, 0, 0}};
 }
 class Digit extends GameObject {
   static final int NEGATIVE = 10;
