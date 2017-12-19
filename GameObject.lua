@@ -5,12 +5,13 @@ local Physics = require "Physics"
 GameObject = {
   -- Draw Variables --
   sprite = love.graphics.newImage(love.image.newImageData(1, 1)),
-  scale = scale or 1,
   color = {0, 0, 0, 0},
   -- Physics Variables --
   collisions = 0,
   rigidBody = Physics.NONE,
 
+  scaleX = scaleX or 1,
+  scaleY = scaleY or 1,
   posX = 0, posY = 0,
   velX = 0, velY = 0
 }
@@ -23,19 +24,20 @@ function GameObject:init(sprite, scale)
   setmetatable(obj, self)
   self.__index = self
   obj.sprite = sprite
-  obj.scale = scale
+  obj.scaleX = scale
+  obj.scaleY = scale
   return obj
 end
 
 function GameObject:getDimensions()
-  return self.sprite:getWidth() * self.scale,
-         self.sprite:getHeight() * self.scale
+  return self.sprite:getWidth() * self.scaleX,
+         self.sprite:getHeight() * self.scaleY
 end
 function GameObject:getWidth()
-  return self.sprite:getWidth() * self.scale
+  return self.sprite:getWidth() * self.scaleX
 end
 function GameObject:getHeight()
-  return self.sprite:getHeight() * self.scale
+  return self.sprite:getHeight() * self.scaleY
 end
 
 function GameObject:getPosition()
@@ -66,17 +68,29 @@ function GameObject:update(dt)
   self.posY = self.posY + self.velY * dt
 end
 
-function GameObject:onCollisionStay(other, sides)
+function GameObject:onCollisionEnter(other, sides)
   if (bit.band(sides, Physics.CLEFT  ) > 0) then self.velX = math.abs(self.velX) end
   if (bit.band(sides, Physics.CRIGHT ) > 0) then self.velX = -math.abs(self.velX) end
   if (bit.band(sides, Physics.CTOP   ) > 0) then self.velY = math.abs(self.velY) end
   if (bit.band(sides, Physics.CBOTTOM) > 0) then self.velY = -math.abs(self.velY) end
+end
 
+-- TODO change velocity not position
+function GameObject:onCollisionStay(other, sides)
+  local repulse = math.dist(self.posX + self:getWidth() * 0.5, self.posY + self:getHeight() * 0.5,
+                             other.posX + other:getWidth() * 0.5, other.posY + other:getHeight() * 0.5)
+  repulse = (1 / (repulse * repulse)) * 1000
+  -- if bit.band(self.rigidBody, Physics.DYNAMIC) > 0 and other and other.posX then
+  --   self.posX = self.posX + (bit.band(sides, Physics.CRIGHT ) > 0 and -1
+  --                           or bit.band(sides, Physics.CLEFT) > 0 and 1 or 0) * repulse
+  --   self.posY = self.posY + (bit.band(sides, Physics.CBOTTOM) > 0 and -1
+  --                           or bit.band(sides, Physics.CTOP ) > 0 and 1 or 0) * repulse
+  -- end
   if bit.band(self.rigidBody, Physics.DYNAMIC) > 0 and other and other.posX then
-    self.posX = self.posX + (bit.band(sides, Physics.CRIGHT  ) > 0 and -self.posX - self:getWidth() + other.posX or
-      bit.band(sides, Physics.CLEFT ) > 0 and -self.posX + other.posX + other:getWidth() or 0)
+    self.posX = self.posX + (bit.band(sides, Physics.CRIGHT ) > 0 and -self.posX - self:getWidth() + other.posX or
+      bit.band(sides, Physics.CLEFT ) > 0 and -self.posX + other.posX + other:getWidth() or 0) * repulse
     self.posY = self.posY + (bit.band(sides, Physics.CBOTTOM) > 0 and -self.posY - self:getHeight() + other.posY or
-      bit.band(sides, Physics.CBOTTOM) > 0 and -self.posY + other.posY + other:getHeight() or 0)
+      bit.band(sides, Physics.CTOP ) > 0 and -self.posY + other.posY + other:getHeight() or 0) * repulse
   end
 end
 
@@ -87,6 +101,6 @@ end
 function GameObject:draw()
   love.graphics.setColor(self.color)
   love.graphics.draw(self.sprite, math.floor(self.posX / 6.62) * 6.62,
-    math.floor(self.posY/ 6.62) * 6.62, 0, self.scale, self.scale)
+    math.floor(self.posY/ 6.62) * 6.62, 0, self.scaleX, self.scaleY)
   love.graphics.setColor(255, 255, 255, 255)
 end

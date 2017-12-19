@@ -17,30 +17,69 @@ Physics = {
   STATIC = 2,
   DYNAMIC = 4,
 
-  rectColliders = {}
+  rectColliders = {},
+  collisionsState = {}
 }
 
 function Physics.addRect(element)
-  table.insert(Physics.rectColliders, element)
-  element.physicsIndex = #Physics.rectColliders
+  Physics.rectColliders[element.id] = element;
 end
 function Physics.removeRect(element)
-  if element.physicsIndex == nil then return end
-  table.remove(Physics.rectColliders, element.physicsIndex)
-  element.physicsIndex = nil
+  Physics.rectColliders[element.id] = nil;
+end
+
+
+local function alreadyColliding(one, two)
+  for i = 1, #Physics.collisionsState do
+    if Physics.collisionsState[i][1] == one.id and
+       Physics.collisionsState[i][2] == two.id then
+        return true
+    end
+    if Physics.collisionsState[i][1] == two.id and
+       Physics.collisionsState[i][2] == one.id then
+        return true
+    end
+  end
+  return false
+end
+
+local function removeCollision(one, two)
+  for i = 1, #Physics.collisionsState do
+    if Physics.collisionsState[i][1] == one.id and
+       Physics.collisionsState[i][2] == two.id then
+         table.remove(Physics.collisionsState, i)
+         return true
+    end
+    if Physics.collisionsState[i][1] == two.id and
+       Physics.collisionsState[i][2] == one.id then
+         table.remove(Physics.collisionsState, i)
+         return true
+    end
+  end
+  return false
+end
+
+local function addCollision(one, two)
+  if alreadyColliding(one, two) == true then return end
+  table.insert(Physics.collisionsState, {one.id, two.id})
 end
 
 function Physics.rectCollisions(deltaTime)
-  if #Physics.rectColliders == 0 then return 0 end
   -- Clear Collisions --
-  for i = 1, #Physics.rectColliders do Physics.rectColliders[i].collisions = 0 end
+  local rects = {} -- For optimization and uknown errors i make a sorted table
+  for key,_ in pairs(Physics.rectColliders) do
+    Physics.rectColliders[key].collisions = 0
+    table.insert(rects, key)
+  end
 
-  local w, h, ow, oh, dx, dy
-  local actual, other;
-  local collisions = 0;
+  if #rects == 0 then return 0 end
 
-  for i = 1, #Physics.rectColliders do
-    actual = Physics.rectColliders[i]
+  local w, h, ow, oh, dx, dy -- Variables for detecting the collision
+  local actual, other
+  local collisions = 0
+
+  for i = 1, #rects do
+    actual = Physics.rectColliders[rects[i]]
   if actual.rigidBody ~= Physics.NONE then
 
     w = actual:getWidth()
@@ -56,7 +95,8 @@ function Physics.rectCollisions(deltaTime)
 
       if collisions > 0 then
         actual.collisions = bit.bor(actual.collisions, collisions)
-        actual:onCollisionStay({}, collisions)
+        actual:onCollisionEnter(nil, collisions)
+        -- actual:onCollisionExit(nil, collisions)
       end
       -- Clamp Position (prevents multiple collisions) --
       if bit.band(actual.rigidBody, Physics.DYNAMIC) > 0 then
@@ -67,9 +107,9 @@ function Physics.rectCollisions(deltaTime)
       end
     end
 
-      -- Collisions with other rectangles using https://en.wikipedia.org/wiki/Minkowski_addition --
-    for j = i + 1, #Physics.rectColliders do
-      other = Physics.rectColliders[j]
+    -- Collisions with other rectangles using https://en.wikipedia.org/wiki/Minkowski_addition --
+    for j = i + 1, #rects do
+      other = Physics.rectColliders[rects[j]]
 
     if other.rigidBody ~= Physics.NONE then
 
@@ -99,13 +139,26 @@ function Physics.rectCollisions(deltaTime)
           other.collisions  = bit.bor(other.collisions,  Physics.CBOTTOM)
           actual.collisions = bit.bor(actual.collisions, Physics.CTOP)
         else                 -- on the left --
-          other.collisions  = bit.bor(other.collisions,    Physics.CLEFT)
-          actual.collisions = bit.bor(actual.collisions,   Physics.CRIGHT)
+          other.collisions  = bit.bor(other.collisions,  Physics.CLEFT)
+          actual.collisions = bit.bor(actual.collisions, Physics.CRIGHT)
         end
 
-        actual:onCollisionStay(other, actual.collisions)
-        other:onCollisionStay(actual, other.collisions)
+        if alreadyColliding(actual, other) == true then
+          -- print("alreadyColliding - true")
+          actual:onCollisionStay(other, actual.collisions)
+          other:onCollisionStay(actual, other.collisions)
+        else
+          -- print("alreadyColliding - false")
+          addCollision(actual, other)
+          actual:onCollisionEnter(other, actual.collisions)
+          other:onCollisionEnter(actual, other.collisions)
+        end
 
+      else
+        if removeCollision(actual, other) == true then
+          actual:onCollisionExit(other, actual.collisions)
+          other:onCollisionExit(actual, other.collisions)
+        end
       end
     end -- Continue
     end

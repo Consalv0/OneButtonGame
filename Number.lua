@@ -14,18 +14,23 @@ function Number:init(length, base, negativeSymbol)
   self.__index = self
   for i = 1, length do
     inst.digits[i] = Character:new(Object.copy(base))
-    inst.digits[i].posX = (length - (i - 1)) * inst.scale
+    inst.digits[i].posX = (length - (i - 1)) * inst.scaleX
   end
   inst.color = base.color
-  inst.scale = base.scale
+  inst.scaleX = base.scale
+  inst.scaleY = base.scale
   return inst
 end
 
 function Number:getHeight()
-  return self.digits[1].sprite:getHeight() * self.scale
+  return self.digits[1].sprite:getHeight() * self.scaleY
 end
 function Number:getWidth()
-  return (self.digits[1].sprite:getWidth() * self.scale + self.scale) * #self.digits
+  local width = 0
+  for i = 1, #self.digits do
+    width = width + (self.digits[i].sprite:getWidth() * self.scaleX + self.scaleX)
+  end
+  return width
 end
 
 local function getDigitAtPos(num, index)
@@ -54,8 +59,8 @@ function Number:draw()
   love.graphics.setColor(self.color)
   for i = 1, #self.digits do
     love.graphics.draw(self.digits[i].sprite,
-      math.floor((self.posX) / 6.62) * 6.62 + (#self.digits - i) * (self.digits[i].sprite:getWidth() * self.scale + self.scale),
-      math.floor(self.posY / 6.62) * 6.62, 0, self.scale, self.scale)
+      math.floor((self.posX) / 6.62) * 6.62 + (#self.digits - i) * (self.digits[i].sprite:getWidth() * self.scaleX + self.scaleX),
+      math.floor(self.posY / 6.62) * 6.62, 0, self.scaleX, self.scaleY)
   end
   love.graphics.setColor(255, 255, 255, 255)
 end

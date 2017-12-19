@@ -34,7 +34,7 @@ function love.load()
   sprites = Sprite:init(SpritesData)
 
   -- Test variables --
-  digit = Character:init(sprites.characters, 4, 2)
+  digit = Character:init(sprites.characters, 5, 2)
   digit:setVelocity(40, 50)
   digit.posX = width / 2
   digit.posY = height / 2
@@ -42,8 +42,9 @@ function love.load()
   digit.rigidBody = bit.bor(Physics.BORDERS, Physics.DYNAMIC)
   Physics.addRect(digit)
 
-  number = Number:init(5, digit, sprites.characters['-'])
-  number.scale = 4
+  number = Number:init(20, digit, sprites.characters['-'])
+  number.scaleX = 2
+  number.scaleY = 2
   number.rigidBody = Physics.STATIC
   Physics.addRect(number)
   Physics.removeRect(digit)
@@ -59,7 +60,6 @@ function love.update(deltaTime)
   number:update(deltaTime)
 end
 
--- Draw all you need here.
 function love.draw()
   love.graphics.setCanvas(canvas)
   love.graphics.clear()
@@ -72,9 +72,9 @@ function love.draw()
   -- love.graphics.rectangle('fill', love.mouse.getX(), love.mouse.getY(), 100, 100)
   -- love.graphics.print(bit.band(18, 2))
   love.graphics.setColor(194, 188, 163, 255)
-  love.graphics.print(number.id)
-  number:draw()
+  love.graphics.print(number.digits[1].id)
   digit:draw()
+  number:draw()
 
   -- PostFX Section --
   -- TV Frame --
