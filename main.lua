@@ -28,10 +28,10 @@ function love.load()
   love.graphics.setBlendMode('alpha', 'alphamultiply')
 
   -- PostFX shaders --
-  crtShader = love.graphics.newShader("CRT.frag")
+  crtShader = love.graphics.newShader("data/Shaders/CRT.frag")
 
   -- Sprite variables --
-  fontChars = Sprites:init('data/Font.png', 'data/Font.json')
+  fontChars = Sprites:init('data/Font/Font.png', 'data/Font/Font.json')
 
   -- Test variables --
   char = Character:init(fontChars, 5)
