@@ -4,7 +4,7 @@ local Object = require "Object"
 
 Number = {
   number = 0,
-  digits = {}
+  chars = {}
 }
 Number = GameObject:extend("Number", Number)
 
@@ -13,8 +13,8 @@ function Number:init(length, base)
   setmetatable(inst, self)
   self.__index = self
   for i = 1, length do
-    inst.digits[i] = Character:new(Object.copy(base))
-    inst.digits[i].posX = (length - (i - 1)) * inst.scaleX
+    inst.chars[i] = Character:new(Object.copy(base))
+    inst.chars[i].posX = (length - (i - 1)) * inst.scaleX
   end
   inst.color = base.color
   inst.scaleX = base.scale
@@ -23,12 +23,12 @@ function Number:init(length, base)
 end
 
 function Number:getHeight()
-  return self.digits[1].sprite:getHeight() * self.scaleY
+  return self.chars[1].sprite:getHeight() * self.scaleY
 end
 function Number:getWidth()
   local width = 0
-  for i = 1, #self.digits do
-    width = width + self.digits[i].sprite:getWidth() * self.scaleX
+  for i = 1, #self.chars do
+    width = width + self.chars[i].sprite:getWidth() * self.scaleX
   end
   return width
 end
@@ -49,18 +49,18 @@ function Number:update(dt)
   self.posY = self.posY + self.velY * dt
 
   -- Assign Numbers --
-  for i = 1, #self.digits do
-    self.digits[i]:setDigit(getDigitAtPos(self.number, i - 1))
+  for i = 1, #self.chars do
+    self.chars[i]:setDigit(getDigitAtPos(self.number, i - 1))
   end
-  if self.number < 0 then self.digits[#self.digits]:setValue('-') end
+  if self.number < 0 then self.chars[#self.chars]:setValue('-') end
 end
 
 function Number:draw()
   love.graphics.setColor(self.color)
   local width = self:getWidth()
-  for i = 1, #self.digits do
-    width = width - self.digits[i].sprite:getWidth() * self.scaleX
-    self.digits[i].sprite:draw(
+  for i = 1, #self.chars do
+    width = width - self.chars[i].sprite:getWidth() * self.scaleX
+    self.chars[i].sprite:draw(
       math.floor((self.posX) / 6.62) * 6.62 + width,
       math.floor(self.posY / 6.62) * 6.62, 0, self.scaleX, self.scaleY)
   end

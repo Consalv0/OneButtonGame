@@ -1,16 +1,16 @@
 require "GameObject"
 
 Character = {
-  sprites = {},
+  chars = {},
   value = 0
 }
 Character = GameObject:extend("Character", Character)
 
-function Character:init(sprites, scale, value)
+function Character:init(chars, scale, value)
   local inst = {}
   setmetatable(inst, self)
   self.__index = self
-  inst.sprites = sprites
+  inst.chars = chars
   inst.scaleX = scale
   inst.scaleY = scale
   inst:setValue(value or self.value)
@@ -20,18 +20,18 @@ end
 -- General --
 function Character:setValue(value)
   self.value = value
-  self.sprite = self.sprites[tostring(self.value)]
+  self.sprite = self.chars[tostring(self.value)]
 end
 
 -- Digit --
 function Character:setDigit(value)
   self.value = value
-  self.sprite = self.sprites[tostring(math.floor(self.value % 10))]
+  self.sprite = self.chars[tostring(math.floor(self.value % 10))]
 end
 function Character:addDigit(value)
   if type(self.value) ~= 'number' then self.value = 0 end
   self.value = self.value + value
-  self.sprite = self.sprites[tostring(math.floor(self.value % 10))]
+  self.sprite = self.chars[tostring(math.floor(self.value % 10))]
 end
 
 -- Other --

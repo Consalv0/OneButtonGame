@@ -1,5 +1,7 @@
 
 require "Number"
+require "Character"
+require "String"
 
 -- Physiscs Sytem --
 local Physics = require("Physics")
@@ -31,14 +33,18 @@ function love.load()
   crtShader = love.graphics.newShader("data/Shaders/CRT.frag")
 
   -- Sprite variables --
-  fontChars = Sprites:init('data/Font/Font.png', 'data/Font/Font.json')
+  fontChars = Sprites:init('data/Font/font.png', 'data/Font/font.json')
 
   -- Test variables --
+  str = String:init(fontChars, 2, "\"Un perro, un gato.\" Comen")
+  str.posX = 0
+  str.posY = height / 2
+
   char = Character:init(fontChars, 5)
   char:setVelocity(40, 50)
   char.posX = width / 2
   char.posY = height / 2
-  char:setValue('M')
+  char:setValue(',')
   char.color = {161, 201, 104, 255}
   char.rigidBody = bit.bor(Physics.BORDERS, Physics.DYNAMIC)
   Physics.addRect(char)
@@ -74,7 +80,8 @@ function love.draw()
   -- love.graphics.print(bit.band(18, 2))
   love.graphics.setColor(194, 188, 163, 255)
 
-  love.graphics.print(char.id)
+  --love.graphics.print(char.id)
+  str:draw()
   char:draw()
   number:draw()
 
