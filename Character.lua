@@ -20,20 +20,18 @@ end
 -- General --
 function Character:setValue(value)
   self.value = value
-  self.sprite = self.sprites[self.value]
+  self.sprite = self.sprites[tostring(self.value)]
 end
 
 -- Digit --
 function Character:setDigit(value)
   self.value = value
-  self.sprite = self.sprites[math.floor(self.value % 10)]
+  self.sprite = self.sprites[tostring(math.floor(self.value % 10))]
 end
 function Character:addDigit(value)
-  if type(value) == 'number' then
-    if type(self.value) ~= 'number' then self.value = 0 end
-    self.value = self.value + value
-    self.sprite = self.sprites[math.floor(self.value % 10)]
-  end
+  if type(self.value) ~= 'number' then self.value = 0 end
+  self.value = self.value + value
+  self.sprite = self.sprites[tostring(math.floor(self.value % 10))]
 end
 
 -- Other --

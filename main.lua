@@ -1,4 +1,4 @@
-require "SpritesData"
+
 require "Number"
 
 -- Physiscs Sytem --
@@ -6,7 +6,7 @@ local Physics = require("Physics")
 -- Load Colors --
 local Colors = require("Colors")
 -- Load Sprite Library --
-local Sprite = require("Sprite")
+local Sprites = require("Sprites")
 -- Needed for bitwise operations --
 local bit = require("bit")
 
@@ -31,30 +31,31 @@ function love.load()
   crtShader = love.graphics.newShader("CRT.frag")
 
   -- Sprite variables --
-  sprites = Sprite:init(SpritesData)
+  fontChars = Sprites:init('data/Font.png', 'data/Font.json')
 
   -- Test variables --
-  digit = Character:init(sprites.characters, 5, 2)
-  digit:setVelocity(40, 50)
-  digit.posX = width / 2
-  digit.posY = height / 2
-  digit.color = {161, 201, 104, 255}
-  digit.rigidBody = bit.bor(Physics.BORDERS, Physics.DYNAMIC)
-  Physics.addRect(digit)
+  char = Character:init(fontChars, 5)
+  char:setVelocity(40, 50)
+  char.posX = width / 2
+  char.posY = height / 2
+  char:setValue('M')
+  char.color = {161, 201, 104, 255}
+  char.rigidBody = bit.bor(Physics.BORDERS, Physics.DYNAMIC)
+  Physics.addRect(char)
 
-  number = Number:init(20, digit, sprites.characters['-'])
-  number.scaleX = 2
-  number.scaleY = 2
+  number = Number:init(20, char)
+  number.scaleX = 5
+  number.scaleY = 5
   number.rigidBody = Physics.STATIC
   Physics.addRect(number)
-  Physics.removeRect(digit)
-  Physics.addRect(digit)
+  Physics.removeRect(char)
+  Physics.addRect(char)
 end
 
 -- Update is called here
 function love.update(deltaTime)
   Physics:rectCollisions(deltaTime)
-  digit:update(deltaTime)
+  char:update(deltaTime)
   number.number = love.timer.getFPS()
   number:setPosition(love.mouse.getX() - number:getWidth() / 2, love.mouse.getY() - number:getHeight() / 2);
   number:update(deltaTime)
@@ -72,8 +73,9 @@ function love.draw()
   -- love.graphics.rectangle('fill', love.mouse.getX(), love.mouse.getY(), 100, 100)
   -- love.graphics.print(bit.band(18, 2))
   love.graphics.setColor(194, 188, 163, 255)
-  love.graphics.print(number.digits[1].id)
-  digit:draw()
+
+  love.graphics.print(char.id)
+  char:draw()
   number:draw()
 
   -- PostFX Section --

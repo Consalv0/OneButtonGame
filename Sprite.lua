@@ -1,65 +1,32 @@
-local Object = require "Object"
 
-local Sprite = {}
+Sprite = {
+  atlas = nil,
+  quad = nil
+}
 
-function Sprite:init(data)
-  local obj = {}
-  setmetatable(obj, self)
+function Sprite:init(image, x, y, w, h)
+  local s = {}
+  setmetatable(s, self)
   self.__index = self
-  obj = Sprite.dataToSprites(Object.copy(data))
-  return obj
+  s.atlas = image
+  s.quad = love.graphics.newQuad(x, y, w, h, image:getDimensions())
+  s.w = w
+  s.h = h
+  return s
 end
 
-function Sprite:addSprite(name, data, category)
-  if category ~= nil then
-    self[category] = self[category] or {}
-    self[category][name] = createSprite(data)
-  else
-    self[name] = createSprite(data)
-  end
+function Sprite:draw(x, y, r, scaleX, scaleY)
+  love.graphics.draw(self.atlas, self.quad, x, y, r, scaleX, scaleY)
 end
 
-function Sprite.isData(t)
-  for key, value in pairs(t) do
-    if type(value) == 'table' then
-      if type(key) ~= 'number' then return false end -- Is not number, no useful
-      for ikey, ivalue in pairs(value) do -- Check if second dimension is table
-        if (type(ivalue) == 'table') then return false end
-      end
-    else
-      return false
-    end
-  end
-  return true
+function Sprite:getDimensions()
+  return self.w, self.h
 end
-
-function Sprite.createSprite(data)
-  if data == nil then return data end
-  local sprite = love.image.newImageData(#data[1], #data)
-  local temp = 0;
-  for i=0, #data[1] -1 do  -- remember: start at 0 not 1
-    for j=0, #data -1 do
-      temp = data[j+1][i+1] / 9 -- 0 is transparent, 1-9 -> black-white
-      sprite:setPixel(i, j, temp * 255, temp * 255, temp * 255, temp == 0 and 0 or 255)
-    end
-  end
-  return love.graphics.newImage(sprite)
+function Sprite:getWidth()
+  return self.w
 end
-
-function Sprite.dataToSprites(sData)
-  sData = sData -- Copy initial data
-  for key, value in pairs(sData) do
-    if type(value) == 'table' then
-      if Sprite.isData(value) then -- Check if the next two dimensions are numbers
-        sData[key] = Sprite.createSprite(sData[key])
-      else
-        Sprite.dataToSprites(value, sData) -- Recursivity inside the inner value
-      end
-    else
-      sData[key] = nil -- Value is no useful
-    end
-  end
-  return sData
+function Sprite:getHeight()
+  return self.h
 end
 
 return Sprite

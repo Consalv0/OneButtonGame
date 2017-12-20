@@ -4,8 +4,8 @@ local Physics = require "Physics"
 
 GameObject = {
   -- Draw Variables --
-  sprite = love.graphics.newImage(love.image.newImageData(1, 1)),
-  color = {0, 0, 0, 0},
+  sprite = nil,
+  color = {255, 255, 255, 255},
   -- Physics Variables --
   collisions = 0,
   rigidBody = Physics.NONE,
@@ -30,13 +30,16 @@ function GameObject:init(sprite, scale)
 end
 
 function GameObject:getDimensions()
+  if self.sprite == nil then return 0, 0 end
   return self.sprite:getWidth() * self.scaleX,
          self.sprite:getHeight() * self.scaleY
 end
 function GameObject:getWidth()
+  if self.sprite == nil then return 0 end
   return self.sprite:getWidth() * self.scaleX
 end
 function GameObject:getHeight()
+  if self.sprite == nil then return 0 end
   return self.sprite:getHeight() * self.scaleY
 end
 
@@ -99,8 +102,9 @@ function GameObject:onCollisionExit(other, sides)
 end
 
 function GameObject:draw()
+  if self.sprite == nil then return end
   love.graphics.setColor(self.color)
-  love.graphics.draw(self.sprite, math.floor(self.posX / 6.62) * 6.62,
+  self.sprite:draw(math.floor(self.posX / 6.62) * 6.62,
     math.floor(self.posY/ 6.62) * 6.62, 0, self.scaleX, self.scaleY)
   love.graphics.setColor(255, 255, 255, 255)
 end

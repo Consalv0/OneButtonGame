@@ -144,11 +144,9 @@ function Physics.rectCollisions(deltaTime)
         end
 
         if alreadyColliding(actual, other) == true then
-          -- print("alreadyColliding - true")
           actual:onCollisionStay(other, actual.collisions)
           other:onCollisionStay(actual, other.collisions)
         else
-          -- print("alreadyColliding - false")
           addCollision(actual, other)
           actual:onCollisionEnter(other, actual.collisions)
           other:onCollisionEnter(actual, other.collisions)
