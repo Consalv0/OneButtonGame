@@ -1,4 +1,5 @@
 require "GameObject"
+local Object = require "Object"
 
 Character = {
   chars = {},
@@ -10,6 +11,7 @@ function Character:init(chars, scale, value)
   local inst = {}
   setmetatable(inst, self)
   self.__index = self
+  inst.id = Object.UUID()
   inst.chars = chars
   inst.scaleX = scale
   inst.scaleY = scale

@@ -1,15 +1,17 @@
 
 Sprite = {
   atlas = nil,
-  quad = nil
+  quad = nil,
+  name = ''
 }
 
-function Sprite:init(image, x, y, w, h)
+function Sprite:init(image, name, x, y, w, h)
   local s = {}
   setmetatable(s, self)
   self.__index = self
   s.atlas = image
   s.quad = love.graphics.newQuad(x, y, w, h, image:getDimensions())
+  s.name = name
   s.w = w
   s.h = h
   return s

@@ -12,6 +12,7 @@ function Number:init(length, base)
   local inst = {}
   setmetatable(inst, self)
   self.__index = self
+  inst.id = Object.UUID()
   for i = 1, length do
     inst.chars[i] = Character:new(Object.copy(base))
     inst.chars[i].posX = (length - (i - 1)) * inst.scaleX

@@ -17,6 +17,8 @@ Physics = {
   STATIC = 2,
   DYNAMIC = 4,
 
+  gravity = 96.17038,
+
   rectColliders = {},
   collisionsState = {}
 }
@@ -93,17 +95,18 @@ function Physics.rectCollisions(deltaTime)
       if actual.posY < 0                             then collisions = bit.bor(collisions, Physics.CTOP) end
       if actual.posY + h > love.graphics.getHeight() then collisions = bit.bor(collisions, Physics.CBOTTOM) end
 
-      if collisions > 0 then
-        actual.collisions = bit.bor(actual.collisions, collisions)
-        actual:onCollisionEnter(nil, collisions)
-        -- actual:onCollisionExit(nil, collisions)
-      end
       -- Clamp Position (prevents multiple collisions) --
       if bit.band(actual.rigidBody, Physics.DYNAMIC) > 0 then
         actual.posX = actual.posX + (actual.posX + w >= love.graphics.getWidth() and -actual.posX - w + love.graphics.getWidth() or
-          actual.posX <= 0 and -actual.posX or 0)
+        actual.posX <= 0 and -actual.posX or 0)
         actual.posY = actual.posY + (actual.posY + h >= love.graphics.getHeight() and -actual.posY - h + love.graphics.getHeight() or
-          actual.posY <= 0 and -actual.posY or 0)
+        actual.posY <= 0 and -actual.posY or 0)
+      end
+
+      if collisions > 0 then
+        actual.collisions = bit.bor(actual.collisions, collisions)
+        actual:onCollisionEnter(nil, collisions, deltaTime)
+        -- actual:onCollisionExit(nil, collisions)
       end
     end
 
@@ -138,24 +141,24 @@ function Physics.rectCollisions(deltaTime)
         elseif oh > -ow then -- at the bottom --
           other.collisions  = bit.bor(other.collisions,  Physics.CBOTTOM)
           actual.collisions = bit.bor(actual.collisions, Physics.CTOP)
-        else                 -- on the left --
+        else
           other.collisions  = bit.bor(other.collisions,  Physics.CLEFT)
           actual.collisions = bit.bor(actual.collisions, Physics.CRIGHT)
         end
 
         if alreadyColliding(actual, other) == true then
-          actual:onCollisionStay(other, actual.collisions)
-          other:onCollisionStay(actual, other.collisions)
+          actual:onCollisionStay(other, actual.collisions, deltaTime)
+          other:onCollisionStay(actual, other.collisions, deltaTime)
         else
           addCollision(actual, other)
-          actual:onCollisionEnter(other, actual.collisions)
-          other:onCollisionEnter(actual, other.collisions)
+          actual:onCollisionEnter(other, actual.collisions, deltaTime)
+          other:onCollisionEnter(actual, other.collisions, deltaTime)
         end
 
       else
         if removeCollision(actual, other) == true then
-          actual:onCollisionExit(other, actual.collisions)
-          other:onCollisionExit(actual, other.collisions)
+          actual:onCollisionExit(other, actual.collisions, deltaTime)
+          other:onCollisionExit(actual, other.collisions, deltaTime)
         end
       end
     end -- Continue

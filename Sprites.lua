@@ -16,7 +16,8 @@ function Sprites:init(imageURL, dataURL)
   for i = 1, #info.meta.slices do
     -- print(info.meta.slices[i].name)
     local bounds = info.meta.slices[i].keys[1].bounds
-    s[info.meta.slices[i].name] = Sprite:init(image, bounds['x'], bounds['y'], bounds['w'], bounds['h'])
+    s[info.meta.slices[i].name] = Sprite:init(image, info.meta.slices[i].name,
+                                  bounds['x'], bounds['y'], bounds['w'], bounds['h'])
   end
   return s
 end

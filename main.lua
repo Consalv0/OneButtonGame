@@ -35,36 +35,51 @@ function love.load()
   -- Sprite variables --
   fontChars = Sprites:init('data/Font/font.png', 'data/Font/font.json')
 
+
   -- Test variables --
-  str = String:init(fontChars, 2, "\"Un perro, un gato.\" Comen")
-  str.posX = 0
-  str.posY = height / 2
+  objects = {}
+  for i = 1, 100 do
+    table.insert(objects, GameObject:init(fontChars['*'], (i + 15) / 15))
+    objects[i].posX = i
+    objects[i].posY = i
+    objects[i].bounciness = -0.3
+    objects[i].rigidBody = bit.bor(Physics.BORDERS, Physics.DYNAMIC)
+    Physics.addRect(objects[i])
+  end
 
   char = Character:init(fontChars, 5)
   char:setVelocity(40, 50)
   char.posX = width / 2
   char.posY = height / 2
-  char:setValue(',')
+  char:setValue('I')
   char.color = {161, 201, 104, 255}
+  char.bounciness = -0.3
   char.rigidBody = bit.bor(Physics.BORDERS, Physics.DYNAMIC)
   Physics.addRect(char)
 
-  number = Number:init(20, char)
+  str = String:init(fontChars, 4, 'I have no money')
+  str:setVelocity(1, 1.5)
+  str.rigidBody = bit.bor(Physics.BORDERS, Physics.DYNAMIC)
+  Physics.addRect(str)
+
+  number = Number:init(5, char)
   number.scaleX = 5
   number.scaleY = 5
   number.rigidBody = Physics.STATIC
   Physics.addRect(number)
-  Physics.removeRect(char)
-  Physics.addRect(char)
 end
 
 -- Update is called here
 function love.update(deltaTime)
-  Physics:rectCollisions(deltaTime)
+  Physics.rectCollisions(deltaTime)
+  str:update(deltaTime)
   char:update(deltaTime)
   number.number = love.timer.getFPS()
   number:setPosition(love.mouse.getX() - number:getWidth() / 2, love.mouse.getY() - number:getHeight() / 2);
   number:update(deltaTime)
+  for i = 1, 100 do
+    objects[i]:update(deltaTime)
+  end
 end
 
 function love.draw()
@@ -81,6 +96,9 @@ function love.draw()
   love.graphics.setColor(194, 188, 163, 255)
 
   --love.graphics.print(char.id)
+  for i = 1, 100 do
+    objects[i]:draw()
+  end
   str:draw()
   char:draw()
   number:draw()
