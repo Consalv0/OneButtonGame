@@ -45,7 +45,10 @@ end
 
 function Number:update(dt)
   -- Movement --
-  dt = dt * 10
+  if bit.band(self.rigidBody, Physics.DYNAMIC) > 0 then
+    self.velY = self.velY + Physics.gravity * dt
+  end
+
   self.posX = self.posX + self.velX * dt
   self.posY = self.posY + self.velY * dt
 
@@ -61,9 +64,7 @@ function Number:draw()
   local width = self:getWidth()
   for i = 1, #self.chars do
     width = width - self.chars[i].sprite:getWidth() * self.scaleX
-    self.chars[i].sprite:draw(
-      math.floor((self.posX) / 6.62) * 6.62 + width,
-      math.floor(self.posY / 6.62) * 6.62, 0, self.scaleX, self.scaleY)
+    self.chars[i].sprite:draw(self.posX + width, self.posY, 0, self.scaleX, self.scaleY)
   end
   love.graphics.setColor(255, 255, 255, 255)
 end

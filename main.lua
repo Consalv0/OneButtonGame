@@ -34,38 +34,33 @@ function love.load()
 
   -- Sprite variables --
   fontChars = Sprites:init('data/Font/font.png', 'data/Font/font.json')
-
+  plataforms = Sprites:init('data/Sprites/plataforms.png', 'data/Sprites/plataforms.json')
 
   -- Test variables --
-  objects = {}
-  for i = 1, 100 do
-    table.insert(objects, GameObject:init(fontChars['*'], (i + 15) / 15))
-    objects[i].posX = i
-    objects[i].posY = i
-    objects[i].bounciness = -0.3
-    objects[i].rigidBody = bit.bor(Physics.BORDERS, Physics.DYNAMIC)
-    Physics.addRect(objects[i])
-  end
+  plataform = GameObject:init(plataforms['SandPlataform'], 1)
+  plataform.rigidBody = Physics.STATIC
+  Physics.addRect(plataform)
 
-  char = Character:init(fontChars, 5)
+  char = Character:init(fontChars, 2)
   char:setVelocity(40, 50)
   char.posX = width / 2
   char.posY = height / 2
-  char:setValue('I')
+  char:setValue('!')
   char.color = {161, 201, 104, 255}
   char.bounciness = -0.3
   char.rigidBody = bit.bor(Physics.BORDERS, Physics.DYNAMIC)
-  Physics.addRect(char)
 
-  str = String:init(fontChars, 4, 'I have no money')
-  str:setVelocity(1, 1.5)
+  str = String:init(fontChars, 3, "Carácteres especiales¡!")
+  str:setVelocity(100, 1.5)
+  str.bounciness = -0.3
   str.rigidBody = bit.bor(Physics.BORDERS, Physics.DYNAMIC)
   Physics.addRect(str)
 
   number = Number:init(5, char)
-  number.scaleX = 5
-  number.scaleY = 5
-  number.rigidBody = Physics.STATIC
+  number:setVelocity(100, 1.5)
+  number.scaleX = 2
+  number.scaleY = 2
+  number.rigidBody = bit.bor(Physics.BORDERS, Physics.DYNAMIC)
   Physics.addRect(number)
 end
 
@@ -73,13 +68,10 @@ end
 function love.update(deltaTime)
   Physics.rectCollisions(deltaTime)
   str:update(deltaTime)
-  char:update(deltaTime)
   number.number = love.timer.getFPS()
-  number:setPosition(love.mouse.getX() - number:getWidth() / 2, love.mouse.getY() - number:getHeight() / 2);
   number:update(deltaTime)
-  for i = 1, 100 do
-    objects[i]:update(deltaTime)
-  end
+  plataform:setPosition(love.mouse.getX() - plataform:getWidth(), love.mouse.getY() - plataform:getHeight());
+  plataform:update(deltaTime)
 end
 
 function love.draw()
@@ -96,12 +88,10 @@ function love.draw()
   love.graphics.setColor(194, 188, 163, 255)
 
   --love.graphics.print(char.id)
-  for i = 1, 100 do
-    objects[i]:draw()
-  end
-  str:draw()
   char:draw()
+  str:draw()
   number:draw()
+  plataform:draw()
 
   -- PostFX Section --
   -- TV Frame --

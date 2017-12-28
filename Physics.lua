@@ -17,7 +17,7 @@ Physics = {
   STATIC = 2,
   DYNAMIC = 4,
 
-  gravity = 96.17038,
+  gravity = 961.7038,
 
   rectColliders = {},
   collisionsState = {}

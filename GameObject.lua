@@ -72,7 +72,6 @@ function GameObject:update(dt)
     self.velY = self.velY + Physics.gravity * dt
   end
   -- Movement --
-  dt = dt * 10
   self.posX = self.posX + self.velX * dt
   self.posY = self.posY + self.velY * dt
 end
@@ -86,11 +85,12 @@ end
 
 -- TODO change velocity not position
 function GameObject:onCollisionStay(other, sides, dt)
+
   if bit.band(self.rigidBody, Physics.DYNAMIC) > 0 then
-    if (bit.band(sides, Physics.CLEFT  ) > 0) then self.velX = self.velX - 6 * self.bounciness end
-    if (bit.band(sides, Physics.CRIGHT ) > 0) then self.velX = self.velX + 6 * self.bounciness end
-    if (bit.band(sides, Physics.CTOP   ) > 0) then self.velY = self.velY - 6 * self.bounciness end
-    if (bit.band(sides, Physics.CBOTTOM) > 0) then self.velY = self.velY + 6 * self.bounciness end
+    if (bit.band(sides, Physics.CLEFT  ) > 0) then self.velX = self.velX + dt * 1000 end
+    if (bit.band(sides, Physics.CRIGHT ) > 0) then self.velX = self.velX - dt * 1000 end
+    if (bit.band(sides, Physics.CTOP   ) > 0) then self.velY = self.velY + dt * 1000 end
+    if (bit.band(sides, Physics.CBOTTOM) > 0) then self.velY = self.velY - dt * 1000 end
   end
 
   local moveX, moveY
@@ -104,6 +104,9 @@ function GameObject:onCollisionStay(other, sides, dt)
     self.posX = self.posX + moveX
     self.posY = self.posY + moveY
   end
+
+  self.velX = self.velX * (1 - dt)
+  self.velY = self.velY * (1 - dt)
 end
 
 function GameObject:onCollisionExit(other, sides, dt)
@@ -113,8 +116,6 @@ end
 function GameObject:draw()
   if self.sprite == nil then return end
   love.graphics.setColor(self.color)
-  self.sprite:draw(
-    math.floor((self.posX) / 6.62) * 6.62,
-    math.floor(self.posY / 6.62) * 6.62, 0, self.scaleX, self.scaleY)
+  self.sprite:draw(self.posX, self.posY, 0, self.scaleX, self.scaleY)
   love.graphics.setColor(255, 255, 255, 255)
 end
